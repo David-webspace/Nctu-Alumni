@@ -1,5 +1,3 @@
-import Header from "@/app/components/Header";
-
 export default function CEOPage() {
   return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-yellow-50 py-10 flex items-center justify-center">

@@ -12,7 +12,15 @@ const localizer = momentLocalizer(moment);
 const CALENDAR_ID = "YOUR_GOOGLE_CALENDAR_ID";
 const API_KEY = "YOUR_GOOGLE_API_KEY";
 
-const fetchEvents = async () => {
+interface Event {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  allDay: boolean;
+}
+
+const fetchEvents = async (): Promise<Event[]> => {
   const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
     CALENDAR_ID
   )}/events?key=${API_KEY}&singleEvents=true&orderBy=startTime&timeMin=${new Date().toISOString()}`;

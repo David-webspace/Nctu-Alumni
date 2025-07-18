@@ -1,5 +1,6 @@
 import React from 'react';
-import Link from 'next/link';
+import Link from "next/link";
+import Image from "next/image";
 
 const Header = () => {
   return (
@@ -7,7 +8,7 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo / Site Title */}
         <Link href="/" className="flex items-center space-x-6 text-xl font-bold text-black hover:text-blue-900 transition-colors">
-          <img src="/logo.png" alt="" className="w-20"/>
+          <Image src="/logo.png" alt="" width={80} height={80} className="w-20" />
           <span>NCTU Alumni</span>
         </Link>
         {/* Navigation */}
