@@ -20,6 +20,13 @@ interface Event {
   allDay: boolean;
 }
 
+interface GoogleCalendarEvent {
+  id: string;
+  summary: string;
+  start: { dateTime?: string; date?: string };
+  end: { dateTime?: string; date?: string };
+}
+
 const fetchEvents = async (): Promise<Event[]> => {
   const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
     CALENDAR_ID
@@ -27,17 +34,19 @@ const fetchEvents = async (): Promise<Event[]> => {
   const res = await fetch(url);
   const data = await res.json();
   if (!data.items) return [];
-  return data.items.map((item: any) => ({
-    id: item.id,
-    title: item.summary,
-    start: parseISO(item.start.dateTime || item.start.date),
-    end: parseISO(item.end.dateTime || item.end.date),
-    allDay: !item.start.dateTime,
-  }));
+  return data.items.map((item: GoogleCalendarEvent) => {
+    return {
+      id: item.id,
+      title: item.summary,
+      start: parseISO(item.start.dateTime ?? item.start.date ?? ""),
+      end: parseISO(item.end.dateTime ?? item.end.date ?? ""),
+      allDay: !item.start.dateTime,
+    };
+  });
 };
 
 const ActivityCalendar = () => {
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
