@@ -21,7 +21,7 @@ const newsList = [
 
 const LatestNews = () => {
   return (
-    <section className="w-full flex flex-col md:flex-row items-start justify-between px-6 md:px-20 py-10">
+    <section className="w-full flex flex-col md:flex-row items-start justify-between px-6 md:px-20 py-50">
     {/* Left: News List */}
     <div className="flex-1 min-w-0">
       {/* Section Title */}

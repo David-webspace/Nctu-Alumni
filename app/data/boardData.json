@@ -1,11 +1,14 @@
 {
   "general": {
+    "title": "總會",
+    "description": "國立交通大學總會 第8屆理監事名單",
     "chairman": {
       "name": "姜長安",
       "title": "理事長",
       "img": "/general_director.jpg"
     },
     "viceChairmen": ["吳廣義", "汪秉龍"],
+    "executiveSecratary": [""],
     "directors": [
       "王震緒", "何俊輝", "余孝先", "吳宗賢", "吳銘雄", "李正中", "李志強", "李明哲", "杜彥宏", "杜書全",
       "周世傑", "林行憲", "林志明", "姜長安", "柯富仁", "翁順峰", "張財銘", "陳永富", "陳冠州", "陳國源",
@@ -13,16 +16,20 @@
     ],
     "altDirectors": ["周賢穎", "郭加永", "曹暘正", "陳榮邦", "黃才丞", "黃貞凱", "黃建平", "楊偉森", "鄭竹明"],
     "convener": ["郝挺"],
+    "executiveSupervisors": [],
     "supervisors": ["方振洲", "沈文義", "林嘉勳", "馬鴻方", "趙書華", "劉家瑞", "鄭光遠", "鍾惠民"],
     "altSupervisors": ["江國泉", "黃源南", "葉明水"]
   },
   "taipei": {
+    "title": "台北分會",
+    "description": "國立交通大學台北分會 第11屆理監事名單",
     "chairman": {
       "name": "歐耿良",
       "title": "理事長",
       "img": "/taipei_director.png"
     },
     "viceChairmen": ["葉明水"],
+    "executiveSecratary": [""],
     "executiveDirectors": ["馬友樂", "陳欣德", "陳益世", "黃種智"],
     "directors": [
       "李光斌", "沈上謙", "俞伯瑋", "徐逢昇", "翁暐明", "梁厚誠", "曾仲銘", "曾金池",
@@ -31,10 +38,82 @@
     "altDirectors": ["林柏韋", "邱文桃", "姜家宏", "洪偉騰", "許偉揚", "陳慕天", "董軒宇"],
     "convener": ["宋貴修"],
     "executiveSupervisors": ["丁明勇", "朱慶忠", "曹暘正", "游俊樺", "黃須白", "劉文章"],
-    "supervisors": ["林育竹", "羅振憲"]
-  },
-  "hsinchu": {},
-  "taichung": {},
-  "kaohsiung": {},
-  "shanghai": {}
+    "supervisors": ["林育竹", "羅振憲"],
+    "altSupervisors": [""]
+},
+"hsinchu": {
+    "title": "新竹分會",
+    "description": "國立交通大學新竹分會 第10屆理監事名單",
+    "chairman": {
+        "name": "林志明",
+        "title": "理事長",
+        "img": "/hsinchu_director.png"
+    },
+    "viceChairmen": [],
+    "executiveSecratary": [""],
+    "executiveDirectors": [],
+    "directors": ["方振洲", "吳明昌", "呂木宜境", "杜明達", "邱繼弘", "侯玉貞", "柯富仁"],
+    "altDirectors": ["王基旆", "陳宏益", "盧進龍"],
+    "convener": [],
+    "executiveSupervisors": ["楊立昌"],
+    "supervisors": ["吳惠蘭", "郝挺", "曹敏人", "魏駿愷"],
+    "altSupervisors": ["邱文彬"]
+},
+"taichung": {
+    "title": "台中分會",
+    "description": "國立交通大學台中分會 第6屆理監事名單",
+    "chairman": {
+        "name": "魏鎮炎",
+        "title": "理事長",
+        "img": "/taichung_director.jpg"
+    },
+    "viceChairmen": [""],
+    "executiveSecratary": ["羅志新"],
+    "executiveDirectors": [],
+    "directors": [],
+    "altDirectors": [],
+    "convener": [],
+    "executiveSupervisors": [],
+    "supervisors": [],
+    "altSupervisors": []
+},
+"kaohsiung": {
+    "title": "高雄分會",
+    "description": "國立交通大學高雄分會 第9屆理監事名單",
+    "chairman": {
+        "name": "張財銘",
+        "title": "理事長",
+        "img": "/kaohsiung_director.png"
+    },
+    "viceChairmen": [],
+    "executiveSecratary": [],
+    "executiveDirectors": [],
+    "directors": [],
+    "altDirectors": [],
+    "convener": [],
+    "executiveSupervisors": ["鍾祥鳳"],
+    "supervisors": [],
+    "altSupervisors": []
+},
+"shanghai": {
+    "title": "上海分會",
+    "description": "國立交通大學上海分會 第1屆理監事名單",
+    "chairman": {
+        "name": "蔡豐賜",
+        "title": "理事長",
+        "img": "/shanghai_director.png"
+    },
+    "viceChairmen": ["葉明水"],
+    "executiveSecratary": [""],
+    "executiveDirectors": ["馬友樂", "陳欣德", "陳益世", "黃種智"],
+    "directors": [
+      "張玥", "丁昌肇", "周佰智", "馮竹健", "田輝棟", "丁祈安", "曹效忠",
+      "李敬平", "周致平", "陳重艮"
+    ],
+    "altDirectors": [],
+    "convener": [],
+    "executiveSupervisors": [],
+    "supervisors": ["張聖", "劉坤靈", "李明聰"],
+    "altSupervisors": []
+  }
 }

@@ -57,7 +57,7 @@ const ActivityCalendar = () => {
   }, []);
 
   return (
-    <section className="w-full flex flex-col md:flex-row items-start justify-between px-6 md:px-20 py-10">
+    <section className="w-full flex flex-col md:flex-row items-start justify-between px-6 md:px-20 py-50">
       {/* Left: Calendar Icon */}
       <div className="hidden md:flex flex-1 justify-center items-center">
         <Image
