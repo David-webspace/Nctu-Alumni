@@ -1,6 +1,5 @@
 "use client";
 // app/about/constitution/page.tsx
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import GoToTopButton from '@/app/hooks/GoToTopButton';
 
