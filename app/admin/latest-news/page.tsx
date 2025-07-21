@@ -45,7 +45,7 @@ const LatestNewsPage = () => {
             </tr>
           </thead>
           <tbody className="text-gray-800">
-            {newsData.map((item, index) => (
+            {newsData.map((item) => (
               <tr key={item.id} className="border-b border-gray-200">
                 <td className="py-4 px-2">{item.id}</td>
                 <td className="py-4 px-2">{item.title}</td>
