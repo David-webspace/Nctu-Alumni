@@ -10,29 +10,29 @@ const DashboardCard = ({ title, description, link }: { title: string; descriptio
 export default function AdminDashboardPage() {
   return (
     <div>
-      <h1 className="text-4xl font-bold text-gray-800 mb-6">Admin Dashboard</h1>
+      <h1 className="text-4xl font-bold text-gray-800 mb-6">管理主頁</h1>
       <p className="text-lg text-gray-600 mb-8">
-        Welcome to the control center. Manage your website content and members from here.
+        歡迎使用控制中心。從這裡管理您的網站內容和會員。
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <DashboardCard 
-          title="Latest News"
-          description="Create, edit, and manage news articles."
+          title="最新消息"
+          description="新增、編輯、管理最新消息。"
           link="/admin/latest-news"
         />
         <DashboardCard 
-          title="Membership Management"
-          description="View and manage all registered members."
+          title="會員管理"
+          description="新增、編輯、管理會員。"
           link="/admin/membership-management"
         />
         <DashboardCard 
-          title="Event Calendar"
-          description="Schedule and organize upcoming events."
+          title="活動日曆"
+          description="新增、編輯、管理活動日曆。"
           link="/admin/event-calendar"
         />
         <DashboardCard 
-          title="Association Info"
-          description="Update information about the association."
+          title="協會介紹"
+          description="更新協會介紹。"
           link="/admin/association-info"
         />
       </div>

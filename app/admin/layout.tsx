@@ -7,12 +7,12 @@ import { usePathname } from 'next/navigation';
 const adminPages = [
   { name: '管理主頁', path: '/admin' },
   { name: '最新消息', path: '/admin/latest-news' },
-  { name: '活動日曆', path: '/admin/event-calendar' },
+  { name: '行事曆', path: '/admin/event-calendar' },
   { name: '會員管理', path: '/admin/membership-management' },
-  { name: '協會資訊', path: '/admin/association-info' },
-  { name: '協會簡介', path: '/admin/association-intro' },
-  { name: 'Club Info', path: '/admin/club-info' },
-  { name: 'Donation Progress', path: '/admin/donation-progress' },
+  { name: '校友會介紹/組織', path: '/admin/association-intro' },
+  { name: '校友會資訊', path: '/admin/association-info' },
+  { name: '校友社團資訊', path: '/admin/club-info' },
+  { name: '募款進度', path: '/admin/donation-progress' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
