@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 
 // Define types for the content blocks
 type ContentBlockType = 'image' | 'text';
@@ -99,7 +100,13 @@ const AssociationIntroPage = () => {
             {block.type === 'image' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                 <div className="border-2 border-dashed border-gray-300 p-2 rounded-md">
-                  <img src={block.content || 'https://via.placeholder.com/400x200'} alt="Image preview" className="w-full h-auto object-contain rounded" />
+                  <Image 
+                    src={block.content || 'https://via.placeholder.com/400x200'} 
+                    alt="Image preview" 
+                    width={400} 
+                    height={200} 
+                    className="w-full h-auto object-contain rounded" 
+                  />
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-800">圖片 - {index + 1}</h3>

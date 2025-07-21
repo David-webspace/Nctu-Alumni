@@ -27,7 +27,9 @@ const MembershipManagementPage = () => {
   const [gender, setGender] = useState('unspecified');
 
   // State for search results
-  const [members, setMembers] = useState<Member[]>(sampleData);
+  const [members] = useState<Member[]>(sampleData);
+  // The setMembers function will be used when we implement the API call for search.
+
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
