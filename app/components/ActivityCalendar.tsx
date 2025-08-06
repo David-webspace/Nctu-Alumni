@@ -1,61 +1,8 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { Calendar, momentLocalizer } from "react-big-calendar";
-import { parseISO } from "date-fns";
-import "react-big-calendar/lib/css/react-big-calendar.css";
+import React from "react";
 import Image from "next/image";
-import moment from "moment";
-
-const localizer = momentLocalizer(moment);
-
-// TODO: Replace with your actual Google Calendar ID and API key
-const CALENDAR_ID = "YOUR_GOOGLE_CALENDAR_ID";
-const API_KEY = "YOUR_GOOGLE_API_KEY";
-
-interface Event {
-  id: string;
-  title: string;
-  start: Date;
-  end: Date;
-  allDay: boolean;
-}
-
-interface GoogleCalendarEvent {
-  id: string;
-  summary: string;
-  start: { dateTime?: string; date?: string };
-  end: { dateTime?: string; date?: string };
-}
-
-const fetchEvents = async (): Promise<Event[]> => {
-  const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
-    CALENDAR_ID
-  )}/events?key=${API_KEY}&singleEvents=true&orderBy=startTime&timeMin=${new Date().toISOString()}`;
-  const res = await fetch(url);
-  const data = await res.json();
-  if (!data.items) return [];
-  return data.items.map((item: GoogleCalendarEvent) => {
-    return {
-      id: item.id,
-      title: item.summary,
-      start: parseISO(item.start.dateTime ?? item.start.date ?? ""),
-      end: parseISO(item.end.dateTime ?? item.end.date ?? ""),
-      allDay: !item.start.dateTime,
-    };
-  });
-};
 
 const ActivityCalendar = () => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchEvents().then(ev => {
-      setEvents(ev);
-      setLoading(false);
-    });
-  }, []);
-
   return (
     <section className="w-full flex flex-col md:flex-row items-start justify-between py-20">
       {/* Left: Calendar Icon */}
@@ -68,7 +15,7 @@ const ActivityCalendar = () => {
           className="object-contain"
         />
       </div>
-      {/* Right: Calendar */}
+      {/* Right: Google Calendar */}
       <div className="flex-2 min-w-0 p-20">
         <div className="mb-2">
           <div className="flex items-end space-x-4">
