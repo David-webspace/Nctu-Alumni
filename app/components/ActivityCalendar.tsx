@@ -57,19 +57,19 @@ const ActivityCalendar = () => {
   }, []);
 
   return (
-    <section className="w-full flex flex-col md:flex-row items-start justify-between px-6 md:px-20 py-50">
+    <section className="w-full flex flex-col md:flex-row items-start justify-between py-20">
       {/* Left: Calendar Icon */}
-      <div className="hidden md:flex flex-1 justify-center items-center">
+      <div className="hidden md:flex flex-1 justify-start items-center translate-y-40">
         <Image
-          src="/calendar-banner.png"
+          src="/calendar.png"
           alt="活動行事曆 Banner"
-          width={300}
-          height={300}
+          width={600}
+          height={400}
           className="object-contain"
         />
       </div>
       {/* Right: Calendar */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-2 min-w-0 p-20">
         <div className="mb-2">
           <div className="flex items-end space-x-4">
             <h2 className="text-2xl font-bold text-black">活動行事曆</h2>
@@ -80,27 +80,13 @@ const ActivityCalendar = () => {
           </div>
         </div>
         <div className="bg-white rounded-lg shadow mt-6 p-2 overflow-x-auto">
-          {loading ? (
-            <div className="text-center text-gray-500 py-10">載入中...</div>
-          ) : (
-            <Calendar
-              localizer={localizer}
-              events={events}
-              startAccessor="start"
-              endAccessor="end"
-              style={{ height: 500 }}
-              popup
-              messages={{
-                month: "月",
-                week: "週",
-                day: "日",
-                today: "今天",
-                previous: "上個月",
-                next: "下個月",
-                showMore: (total) => `+${total} 更多`,
-              }}
-            />
-          )}
+          <iframe
+            src="https://calendar.google.com/calendar/embed?src=c_5445337be15104f7a30e6b47d1e8474cb62da73ebac82b8a8c3c5b9e9d8c7c7c@group.calendar.google.com&ctz=Asia%2FTaipei"
+            style={{ border: 0, width: '100%', height: '500px' }}
+            frameBorder="0"
+            scrolling="no"
+            title="Google Calendar"
+          ></iframe>
         </div>
       </div>
     </section>
