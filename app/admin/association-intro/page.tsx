@@ -100,7 +100,7 @@ const AssociationIntroPage = () => {
             {block.type === 'image' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                 <div className="border-2 border-dashed border-gray-300 p-2 rounded-md">
-                  <Image 
+                  <Image
                     src={block.content || 'https://via.placeholder.com/400x200'} 
                     alt="Image preview" 
                     width={400} 

@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from "next/link";
 import Image from "next/image";
+import { CgProfile } from "react-icons/cg";
 
 const Header = () => {
   return (
@@ -50,24 +51,34 @@ const Header = () => {
             </div>
           </div>
         </nav>
-        {/* Profile Icon & Dropdown */}
-        <div className="relative group ml-6">
-          <button className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-blue-100 focus:outline-none">
-            {/* You can replace this SVG with an Image if you have a user icon */}
-            <svg className="w-6 h-6 text-blue-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A9 9 0 1112 21a8.963 8.963 0 01-6.879-3.196z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-          </button>
-          <div className="absolute right-0 mt-2 w-48 bg-white border border-blue-700 rounded shadow-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto z-50 transition-opacity duration-200">
-            <ul className="divide-y divide-blue-100">
-              <li>
-                <button className="block w-full text-left px-4 py-3 text-blue-700 font-bold hover:bg-blue-100">登入</button>
-              </li>
-              <li>
-                <button className="block w-full text-left px-4 py-3 text-blue-700 font-bold hover:bg-blue-100">註冊</button>
-              </li>
-              <li>
-                <button className="block w-full text-left px-4 py-3 text-gray-400 font-bold cursor-not-allowed bg-gray-100">修改個人資料</button>
-              </li>
-            </ul>
+        <div className="flex items-center">
+          {/* Console Button for Admins */}
+          <Link
+            href="/admin"
+            className="ml-6 px-5 py-2 bg-gray-200 text-gray-800 rounded-lg shadow hover:bg-gray-300 hover:ring-2 hover:ring-gray-400 transition-all duration-200 font-bold flex items-center gap-2 border border-gray-300"
+            style={{ minWidth: '120px' }}
+          >
+            頁面管理
+          </Link>
+          {/* Profile Icon & Dropdown */}
+          <div className="relative group ml-6">
+            <button className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-gray-400 focus:outline-none">
+              {/* You can replace this SVG with an Image if you have a user icon */}
+              <CgProfile className="w-10 h-10 text-black" />
+            </button>
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-blue-700 rounded shadow-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto z-50 transition-opacity duration-200">
+              <ul className="divide-y divide-blue-100">
+                <li>
+                  <button className="block w-full text-left px-4 py-3 text-blue-700 font-bold hover:bg-blue-100">登入</button>
+                </li>
+                <li>
+                  <button className="block w-full text-left px-4 py-3 text-blue-700 font-bold hover:bg-blue-100">註冊</button>
+                </li>
+                <li>
+                  <button className="block w-full text-left px-4 py-3 text-gray-400 font-bold cursor-not-allowed bg-gray-100">修改個人資料</button>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
