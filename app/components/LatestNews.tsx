@@ -30,12 +30,12 @@ const LatestNews = () => {
   }, []);
 
   return (
-    <section className="w-full flex flex-col md:flex-row items-start justify-between py-50">
+    <section className="w-full flex flex-col md:flex-row items-start justify-between py-8 px-2 sm:px-6 md:px-12">
     {/* Left: News List */}
-      <div className="flex-3 min-w-0 p-20">
+      <div className="flex-3 min-w-0 p-2 sm:p-6 md:p-10">
         {/* Section Title */}
         <div className="mb-2">
-          <div className="flex items-end space-x-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end sm:space-x-4 text-center sm:text-left">
             <h2 className="text-2xl font-bold text-black">最新消息</h2>
             <div className="w-28 h-1 bg-gray-300" />
           </div>
@@ -47,11 +47,11 @@ const LatestNews = () => {
         {loading ? (
           <div className="text-center py-10">載入中...</div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-6">
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mt-6">
             {newsList.map((item) => (
               <div
                 key={item.id}
-                className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden flex flex-col"
+                className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden flex flex-col min-h-[260px]"
               >
                 <div className="aspect-w-4 aspect-h-3 bg-gray-100">
                   <Image
@@ -63,15 +63,15 @@ const LatestNews = () => {
                     loading="lazy"
                   />
                 </div>
-                <div className="p-4 flex-1 flex flex-col">
-                  <div className="font-bold text-gray-700 text-lg mb-2 line-clamp-2">{item.title}</div>
-                  <div className="text-xs text-gray-500">{item.start_date}</div>
+                <div className="p-3 sm:p-4 flex-1 flex flex-col">
+                  <div className="font-bold text-gray-700 text-base sm:text-lg mb-2 line-clamp-2">{item.title}</div>
+                  <div className="text-xs text-gray-500 mt-auto">{item.start_date}</div>
                 </div>
               </div>
             ))}
           </div>
         )}
-        <Link href="/news" className="block mt-10 text-black font-bold hover:underline text-center">
+        <Link href="/news" className="block mt-8 text-black font-bold hover:underline text-center w-full">
           更多最新消息...
         </Link>
       </div>

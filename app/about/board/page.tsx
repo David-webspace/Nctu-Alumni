@@ -52,91 +52,99 @@ export default function BoardPage() {
                     {activeTab !== null ? (
                         // 總會
                         <>
-                            <h1 className="text-4xl font-extrabold tracking-wider mb-6 flex items-center">
-                            <span className="border-l-8 border-blue-700 mr-4 h-10 inline-block" />理監事名單
-                            </h1>
-                            <div className="flex items-center mb-4">
-                                <span className="w-4 h-4 rounded-full bg-blue-700 mr-3" />
-                                <span className="text-2xl font-bold mr-4">理監事名單 - {regionData.title}</span>
-                                <span className="text-gray-500 text-lg">{regionData.description}</span>
+                            <div className="mb-2 sm:mb-4">
+                                <h1 className="flex items-center text-lg sm:text-2xl md:text-4xl font-extrabold tracking-wider mb-2 sm:mb-4">
+                                    <span className="border-l-4 sm:border-l-8 border-blue-700 mr-2 sm:mr-4 h-6 sm:h-10 inline-block" />
+                                    理監事名單
+                                </h1>
+                                <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-3">
+                                    <span className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-blue-700 mr-0 sm:mr-2" />
+                                    <span className="text-base sm:text-2xl font-bold mr-0 sm:mr-4">理監事名單 - {regionData.title}</span>
+                                    <span className="text-gray-500 text-xs sm:text-lg">{regionData.description}</span>
+                                </div>
                             </div>
                             {/* 理事長區塊 */}
-                            <div className="flex flex-col md:flex-row items-center gap-8 mt-10 mb-8">
-                                <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-gray-200 shadow-md flex-shrink-0">
+                            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 mt-6 sm:mt-10 mb-6 sm:mb-8">
+                                <div className="w-28 h-28 sm:w-48 sm:h-48 rounded-full overflow-hidden border-2 sm:border-4 border-gray-200 shadow-md flex-shrink-0">
                                     <Image src={regionData.chairman.img} alt="理事長" width={192} height={192} className="object-cover w-full h-full" />
                                 </div>
-                                <div className="flex-1 text-center md:text-left">
-                                    <div className="text-2xl font-bold mb-2">{regionData.chairman.title} {regionData.chairman.name}</div>
+                                <div className="flex-1 text-center sm:text-left mt-3 sm:mt-0">
+                                    <div className="text-lg sm:text-2xl font-bold mb-1 whitespace-pre-line">
+                                    {regionData.chairman.title && <span className="block text-blue-800 mb-0.5">{regionData.chairman.title}</span>}
+                                    <span className="block">{regionData.chairman.name}</span>
+                                    </div>
                                 </div>
+                                {/* Mobile only: thin divider under avatar */}
+                                <div className="block sm:hidden w-full h-px bg-gray-200 my-3" />
                             </div>
                             {/* 副理事長 */}
                             {regionData.viceChairmen.length > 0 && (
-                            <div className="flex items-center mb-4">
-                                <BlueLabel>副理事長</BlueLabel>
-                                <span className="ml-4 text-xl">{regionData.viceChairmen.join('、')}</span>
-                            </div>
+                                <div className="md:flex items-center mb-4">
+                                    <BlueLabel>副理事長</BlueLabel>
+                                    <span className="ml-4 text-base sm:text-xl">{regionData.viceChairmen.join('、')}</span>
+                                </div>
                             )}
                             {/* 理事 */}
                             {regionData.directors.length > 0 && (
-                            <div className="flex items-start mb-4">
-                                <BlueLabel>理事</BlueLabel>
-                                <span className="ml-4 flex-1 flex flex-wrap gap-x-4 gap-y-2 text-xl">
-                                    {regionData.directors.map((name: string, i: number) => (
-                                    <span key={i}>{name}</span>
-                                    ))}
-                                </span>
-                            </div>
+                                <div className="md:flex items-start mb-4">
+                                    <BlueLabel>理事</BlueLabel>
+                                    <span className="ml-4 flex-1 flex flex-wrap gap-x-2 sm:gap-x-4 gap-y-2 text-base sm:text-xl">
+                                        {regionData.directors.map((name: string, i: number) => (
+                                            <span key={i} className="break-all whitespace-pre-line">{name}</span>
+                                        ))}
+                                    </span>
+                                </div>
                             )}
                             {/* 候補理事 */}
                             {regionData.altDirectors.length > 0 && (
-                            <div className="flex items-center mb-4">
-                                <BlueLabel>候補理事</BlueLabel>
-                                <span className="ml-4 text-xl flex flex-wrap gap-x-4 gap-y-2">
-                                    {regionData.altDirectors.map((name: string, i: number) => (
-                                    <span key={i}>{name}</span>
-                                    ))}
-                                </span>
-                            </div>
+                                <div className="md:flex items-center mb-4">
+                                    <BlueLabel>候補理事</BlueLabel>
+                                    <span className="ml-4 text-base sm:text-xl flex flex-wrap gap-x-4 gap-y-2">
+                                        {regionData.altDirectors.map((name: string, i: number) => (
+                                            <span key={i}>{name}</span>
+                                        ))}
+                                    </span>
+                                </div>
                             )}
                             {/* 監事召集人 */}
                             {regionData.convener.length > 0 && (
-                            <div className="flex items-center mb-4">
-                                <BlueLabel>監事召集人</BlueLabel>
-                                <span className="ml-4 text-xl">{regionData.convener.join('、')}</span>
-                            </div>
+                                <div className="md:flex items-center mb-4">
+                                    <BlueLabel>監事召集人</BlueLabel>
+                                    <span className="ml-4 text-base sm:text-xl">{regionData.convener.join('、')}</span>
+                                </div>
                             )}
                             {/* 監事 */}
                             {regionData.supervisors.length > 0 && (
-                            <div className="flex items-center mb-4">
-                                <BlueLabel>監事</BlueLabel>
-                                <span className="ml-4 text-xl flex flex-wrap gap-x-4 gap-y-2">
-                                    {regionData.supervisors.map((name: string, i: number) => (
-                                    <span key={i}>{name}</span>
-                                    ))}
-                                </span>
-                            </div>
+                                <div className="md:flex items-center mb-4">
+                                    <BlueLabel>監事</BlueLabel>
+                                    <span className="ml-4 text-base sm:text-xl flex flex-wrap gap-x-4 gap-y-2">
+                                        {regionData.supervisors.map((name: string, i: number) => (
+                                            <span key={i}>{name}</span>
+                                        ))}
+                                    </span>
+                                </div>
                             )}
                             {/* 候補監事 */}
                             {regionData.altSupervisors.length > 0 && (
-                            <div className="flex items-center mb-4">
-                                <BlueLabel>候補監事</BlueLabel>
-                                <span className="ml-4 text-xl flex flex-wrap gap-x-4 gap-y-2">
-                                    {regionData.altSupervisors.map((name: string, i: number) => (
-                                    <span key={i}>{name}</span>
-                                    ))}
-                                </span>
-                            </div>
+                                <div className="md:flex items-center mb-4">
+                                    <BlueLabel>候補監事</BlueLabel>
+                                    <span className="ml-4 text-base sm:text-xl flex flex-wrap gap-x-4 gap-y-2">
+                                        {regionData.altSupervisors.map((name: string, i: number) => (
+                                            <span key={i}>{name}</span>
+                                        ))}
+                                    </span>
+                                </div>
                             )}
                             {/* 常務監事 */}
                             {regionData.executiveSupervisors.length > 0 && (
-                            <div className="flex items-center mb-4">
-                                <BlueLabel>常務監事</BlueLabel>
-                                <span className="ml-4 text-xl flex flex-wrap gap-x-4 gap-y-2">
-                                    {regionData.executiveSupervisors.map((name: string, i: number) => (
-                                    <span key={i}>{name}</span>
-                                    ))}
-                                </span>
-                            </div>
+                                <div className="md:flex items-center mb-4">
+                                    <BlueLabel>常務監事</BlueLabel>
+                                    <span className="ml-4 text-base sm:text-xl flex flex-wrap gap-x-4 gap-y-2">
+                                        {regionData.executiveSupervisors.map((name: string, i: number) => (
+                                            <span key={i}>{name}</span>
+                                        ))}
+                                    </span>
+                                </div>
                             )}
                         </>
                     ) : (

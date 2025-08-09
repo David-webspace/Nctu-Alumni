@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "交大校友會",
-  description: "交大校友會",
+  title: "交通大學校友會官方網站",
+  description: "交通大學校友會官方網站",
   icons: {
     icon: '/logo.png',
   },

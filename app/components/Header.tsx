@@ -1,19 +1,39 @@
+"use client";
 import React from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import { CgProfile } from "react-icons/cg";
 
+import { useState } from "react";
 const Header = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      {/* Mobile Hamburger */}
+      <div className="md:hidden flex items-center justify-between px-4 py-3">
+        <Link href="/" className="flex items-center space-x-2 text-xl font-bold text-black">
+          <Image src="/logo.png" alt="" width={48} height={48} className="w-12" />
+          <span>NCTU Alumni</span>
+        </Link>
+        <button
+          className="block md:hidden p-2 rounded hover:bg-gray-200 focus:outline-none"
+          onClick={() => setMobileMenuOpen((v) => !v)}
+          aria-label="開啟選單"
+        >
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+      <div className="max-w-7xl mx-auto px-4 py-3 hidden md:flex items-center justify-between flex-wrap gap-4">
         {/* Logo / Site Title */}
         <Link href="/" className="flex items-center space-x-6 text-xl font-bold text-black hover:text-blue-900 transition-colors">
           <Image src="/logo.png" alt="" width={80} height={80} className="w-20" />
           <span>NCTU Alumni</span>
         </Link>
         {/* Navigation */}
-        <nav className="space-x-6">
+        <nav className="flex flex-wrap items-center gap-2 md:gap-6">
           <Link href="/" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">首頁</Link>
           <Link href="/#latest-news" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">最新消息</Link>
           <Link href="/#activity-calendar" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">活動行事曆</Link>
@@ -82,6 +102,36 @@ const Header = () => {
           </div>
         </div>
       </div>
+    {/* Mobile menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-white shadow-lg border-t border-blue-100 px-4 pt-2 pb-4 z-50">
+          <nav className="flex flex-col gap-2">
+            <Link href="/" className="py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">首頁</Link>
+            <Link href="/#latest-news" className="py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">最新消息</Link>
+            <Link href="/#activity-calendar" className="py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">活動行事曆</Link>
+            <Link href="/#plan-and-donation" className="py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">計畫與捐贈</Link>
+            {/* Dropdown for 關於校友會 */}
+            <details className="py-2">
+              <summary className="cursor-pointer text-gray-700 hover:text-blue-700 font-medium">關於校友會</summary>
+              <ul className="ml-4 mt-2 border-l border-blue-200 pl-2">
+                <li><Link href="/about/constitution" className="block py-2 font-bold text-black hover:bg-blue-100">組織章程與架構</Link></li>
+                <li><Link href="/about/ceo" className="block py-2 font-bold text-black hover:bg-blue-100">理事長的話</Link></li>
+                <li><Link href="/about/contact" className="block py-2 font-bold text-black hover:bg-blue-100">相關聯絡訊息</Link></li>
+                <li><Link href="/about/board" className="block py-2 font-bold text-black hover:bg-blue-100">理監事名單</Link></li>
+                <li><Link href="/about/clubs" className="block py-2 font-bold text-black hover:bg-blue-100">社團介紹/系友會介紹</Link></li>
+                <li><Link href="/about/voice" className="block py-2 font-bold text-black hover:bg-blue-100">交大友聲</Link></li>
+              </ul>
+            </details>
+            <Link href="/admin" className="mt-2 py-2 px-4 bg-gray-200 text-gray-800 rounded-lg shadow hover:bg-gray-300 font-bold border border-gray-300">頁面管理</Link>
+            {/* Profile actions */}
+            <div className="mt-2">
+              <button className="block w-full text-left px-4 py-3 text-blue-700 font-bold hover:bg-blue-100">登入</button>
+              <button className="block w-full text-left px-4 py-3 text-blue-700 font-bold hover:bg-blue-100">註冊</button>
+              <button className="block w-full text-left px-4 py-3 text-gray-400 font-bold cursor-not-allowed bg-gray-100">修改個人資料</button>
+            </div>
+          </nav>
+        </div>
+      )}
     </header>
   );
 };
