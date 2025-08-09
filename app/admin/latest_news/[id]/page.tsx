@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getNews, getNewsById } from "../../../api/news";
+import { getNewsById } from "../../../api/news";
 import axiosInstance from "../../../api/axiosinstance";
 import MDEditor from "@uiw/react-md-editor";
 
@@ -33,6 +33,7 @@ export default function EditNewsPage() {
     getNewsById(id)
       .then(res => {
         setNews(res);
+        console.log(news);
         setForm({
           title: res.title || "",
           start_date: res.start_date || "",
@@ -42,7 +43,8 @@ export default function EditNewsPage() {
         });
         setLoading(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error(err);
         setError("找不到該消息");
         setLoading(false);
       });
