@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getNewsById } from "../../../api/news";
 import axiosInstance from "../../../api/axiosinstance";
 import MDEditor from "@uiw/react-md-editor";
+import Image from "next/image";
 
 interface NewsItem {
   id: number;
@@ -113,7 +114,7 @@ export default function EditNewsPage() {
             {form.thumbnail && (
                 <div className="mt-2">
                     <p>預覽圖</p>
-                    <img src={form.thumbnail} alt="預覽圖" className="max-h-40 rounded border" />
+                    <Image width={200} height={200} src={form.thumbnail} alt="預覽圖" className="max-h-40 rounded border" />
                 </div>
             )}
             </div>
