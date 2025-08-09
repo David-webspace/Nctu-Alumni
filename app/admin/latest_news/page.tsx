@@ -15,15 +15,15 @@ interface NewsItem {
 const LatestNewsPage = () => {
   const router = useRouter();
   const [newsData, setNewsData] = useState<NewsItem[]>([]);
-  const [error, setError] = useState<string | null>(null);
+
 
   useEffect(() => {
     getNews()
       .then(data => {
         setNewsData(data);
       })
-      .catch(() => {
-        setError("取得最新消息失敗");
+      .catch((err) => {
+        console.error(err);
       });
   }, []);
 

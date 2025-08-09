@@ -46,12 +46,6 @@ const NewsPage = () => {
     }
   };
 
-  useEffect(() => {
-    getNews().then(data => {
-      
-    })
-  }, []);
-
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);

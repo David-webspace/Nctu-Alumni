@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { getNews } from "../api/news";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface NewsItem {
   id: number;
@@ -53,9 +54,11 @@ const LatestNews = () => {
                 className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden flex flex-col"
               >
                 <div className="aspect-w-4 aspect-h-3 bg-gray-100">
-                  <img
+                  <Image
                     src={item.thumbnail || '/news-default.jpg'}
                     alt={item.title}
+                    width={500}
+                    height={500}
                     className="object-cover w-full h-full"
                     loading="lazy"
                   />
