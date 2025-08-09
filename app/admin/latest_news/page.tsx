@@ -15,21 +15,17 @@ interface NewsItem {
 const LatestNewsPage = () => {
   const router = useRouter();
   const [newsData, setNewsData] = useState<NewsItem[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     getNews()
       .then(data => {
         setNewsData(data);
-        setLoading(false);
       })
-      .catch(err => {
-        setError('載入資料失敗');
-        setLoading(false);
+      .catch(() => {
+        setError("取得最新消息失敗");
       });
   }, []);
-
 
   const EditIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 hover:text-blue-500" viewBox="0 0 20 20" fill="currentColor">

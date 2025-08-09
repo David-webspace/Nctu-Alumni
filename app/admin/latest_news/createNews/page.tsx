@@ -24,7 +24,7 @@ export default function CreateNewsPage() {
     try {
       await createNews(form);
       router.push("/admin/latest_news");
-    } catch (err) {
+    } catch {
       setError("新增失敗");
     }
   };

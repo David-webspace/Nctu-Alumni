@@ -2,16 +2,15 @@
 import { useState, useEffect } from "react";
 import { FaRegClock, FaTrash } from "react-icons/fa";
 import axios from 'axios';
-import { getNews } from "../api/news";
 
 const API_URL = 'http://localhost:3001/api/news';
 
 type NewsItem = {
   id: number;
   title: string;
-  description?: string;
+  description: string;
   date: string;
-  tags?: string;
+  tags: string;
 };
 
 type NewsForm = {

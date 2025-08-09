@@ -43,8 +43,7 @@ export default function EditNewsPage() {
         });
         setLoading(false);
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
         setError("找不到該消息");
         setLoading(false);
       });
@@ -59,7 +58,7 @@ export default function EditNewsPage() {
     try {
       await axiosInstance.put(`/news/${id}`, form);
       router.push("/admin/latest_news");
-    } catch (err) {
+    } catch {
       setError("更新失敗");
     }
   };
