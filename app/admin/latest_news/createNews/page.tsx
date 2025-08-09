@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import { createNews } from '../../../api/news';
+import Image from "next/image";
 
 export default function CreateNewsPage() {
   const router = useRouter();
@@ -73,7 +74,13 @@ export default function CreateNewsPage() {
           {form.thumbnail && (
             <div className="mt-2">
               <p>預覽圖</p>
-              <img src={form.thumbnail} alt="預覽圖" className="max-h-40 rounded border" />
+              <Image
+                src={form.thumbnail}
+                alt="預覽圖"
+                width={400}
+                height={300}
+                className="max-h-40 rounded border"
+              />
             </div>
           )}
         </div>
