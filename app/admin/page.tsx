@@ -18,22 +18,22 @@ export default function AdminDashboardPage() {
         <DashboardCard 
           title="最新消息"
           description="新增、編輯、管理最新消息。"
-          link="/admin/latest-news"
+          link="/admin/latest_news"
         />
         <DashboardCard 
           title="會員管理"
           description="新增、編輯、管理會員。"
-          link="/admin/membership-management"
+          link="/admin/membership_management"
         />
         <DashboardCard 
           title="活動日曆"
           description="新增、編輯、管理活動日曆。"
-          link="/admin/event-calendar"
+          link="/admin/event_calendar"
         />
         <DashboardCard 
           title="協會介紹"
           description="更新協會介紹。"
-          link="/admin/association-info"
+          link="/admin/association_info"
         />
       </div>
     </div>

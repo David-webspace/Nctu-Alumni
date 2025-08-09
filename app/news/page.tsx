@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { FaRegClock, FaTrash } from "react-icons/fa";
 import axios from 'axios';
+import { getNews } from "../api/news";
 
 const API_URL = 'http://localhost:3001/api/news';
 
@@ -47,7 +48,9 @@ const NewsPage = () => {
   };
 
   useEffect(() => {
-    getNews();
+    getNews().then(data => {
+      
+    })
   }, []);
 
   const handleAddSubmit = async (e: React.FormEvent) => {

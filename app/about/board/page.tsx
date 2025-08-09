@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import boardDataJson from '@/app/data/boardData.json';
 
-
 function BlueLabel({ children }: { children: React.ReactNode }) {
     return (
         <span className="inline-block w-40 bg-blue-700 text-white font-bold rounded px-6 py-1 text-lg mb-2 shadow-md">

@@ -1,25 +1,33 @@
-import Image from "next/image";
+"use client";
 import Link from "next/link";
+import { getNews } from "../api/news";
+import { useEffect, useState } from "react";
 
-const newsList = [
-  {
-    text: "台灣交通大學校友總會第九屆理監事候選人徵求公告 (2024/9/13)",
-  },
-  {
-    text: "悼 施敏院士 (2023/11/9)",
-  },
-  {
-    text: "12/23(六) 交大校友會Salesclub經驗傳承講座(早鳥報名預告) (2023/11/8)",
-  },
-  {
-    text: "11/23 交大台北校友會港湖聯誼感恩餐會 (2023/11/17)",
-  },
-  {
-    text: "2023高中基礎科學教學研習會-11/25(六)舉行,歡迎踴躍報名參加! (2023/11/6)",
-  },
-];
+interface NewsItem {
+  id: number;
+  title: string;
+  start_date: string;
+  endDate: string;
+  thumbnail?: string;
+}
 
 const LatestNews = () => {
+
+  const [newsList, setNewsList] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getNews()
+      .then(data => {
+        console.log(data);
+        setNewsList(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }, []);
+
   return (
     <section className="w-full flex flex-col md:flex-row items-start justify-between py-50">
     {/* Left: News List */}
@@ -34,19 +42,38 @@ const LatestNews = () => {
             <div className="w-8 h-1.5 bg-blue-700 rounded" />
           </div>
         </div>
-        {/* News List */}
-        <ul className="mt-6 space-y-4">
-          {newsList.map((item, idx) => (
-            <li key={idx} className="flex items-start space-x-3 text-black text-base font-medium">
-              <span className="mt-1 w-3 h-3 bg-blue-700 rounded-full inline-block" />
-              <span>{item.text}</span>
-            </li>
-          ))}
-        </ul>
-        <Link href="/news" className="block mt-10 text-black font-bold hover:underline">更多最新消息...</Link>
+        {/* News Grid */}
+        {loading ? (
+          <div className="text-center py-10">載入中...</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-6">
+            {newsList.map((item) => (
+              <div
+                key={item.id}
+                className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden flex flex-col"
+              >
+                <div className="aspect-w-4 aspect-h-3 bg-gray-100">
+                  <img
+                    src={item.thumbnail || '/news-default.jpg'}
+                    alt={item.title}
+                    className="object-cover w-full h-full"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="p-4 flex-1 flex flex-col">
+                  <div className="font-bold text-gray-700 text-lg mb-2 line-clamp-2">{item.title}</div>
+                  <div className="text-xs text-gray-500">{item.start_date}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <Link href="/news" className="block mt-10 text-black font-bold hover:underline text-center">
+          更多最新消息...
+        </Link>
       </div>
       {/* Right: Banner Image */}
-      <div className="w-full hidden md:flex flex-2 justify-end items-center">
+      {/* <div className="w-full hidden md:flex flex-2 justify-end items-center">
         <Image
           src="/speaker.png"
           alt="最新消息 Banner"
@@ -54,7 +81,7 @@ const LatestNews = () => {
           height={400}
           className="object-contain"
         />
-      </div>
+      </div> */}
     </section>
   )
 }
