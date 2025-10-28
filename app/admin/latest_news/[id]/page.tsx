@@ -6,15 +6,6 @@ import axiosInstance from "../../../api/axiosinstance";
 import MDEditor from "@uiw/react-md-editor";
 import Image from "next/image";
 
-interface NewsItem {
-  id: number;
-  title: string;
-  start_date: string;
-  end_date?: string;
-  thumbnail?: string;
-  new_description?: string;
-}
-
 export default function EditNewsPage() {
   const { id } = useParams();
   const router = useRouter();
