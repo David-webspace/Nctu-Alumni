@@ -40,7 +40,7 @@ const LatestNewsPage = () => {
       };
       const res = await queryNews(queryBody);
       setNewsData(res.tranRs?.items || []);
-    } catch (_err) {
+    } catch {
       alert('刪除失敗');
     }
   };

@@ -18,7 +18,6 @@ interface NewsItem {
 export default function EditNewsPage() {
   const { id } = useParams();
   const router = useRouter();
-  const [news, setNews] = useState<NewsItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
@@ -33,7 +32,6 @@ export default function EditNewsPage() {
     // 取得單一消息資料
     getNewsById(id)
       .then(res => {
-        setNews(res);
         console.log(res);
         setForm({
           title: res.title || "",
