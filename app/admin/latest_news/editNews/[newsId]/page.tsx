@@ -50,7 +50,7 @@ export default function EditNewsPage({ params }: EditNewsPageProps) {
           imageUrl: data.imageUrl || '',
           imageAlt: data.imageAlt || '',
         });
-      } catch (error) {
+      } catch (_error) {
         setError('載入資料失敗');
       }
     };
@@ -76,7 +76,7 @@ export default function EditNewsPage({ params }: EditNewsPageProps) {
       };
       await updateNews(requestBody);
       router.push("/admin/latest_news");
-    } catch (error: unknown) {
+    } catch (_error: unknown) {
         setError("更新失敗");
       }
   };

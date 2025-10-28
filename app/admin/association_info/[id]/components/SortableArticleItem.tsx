@@ -5,7 +5,6 @@ import { Article } from '../types';
 
 interface SortableArticleProps {
   article: Article;
-  chapterId: string;
   index: number;
   isEditing: boolean;
   onEdit: () => void;
@@ -17,7 +16,6 @@ interface SortableArticleProps {
 
 export const SortableArticleItem: React.FC<SortableArticleProps> = ({
   article,
-  chapterId,
   index,
   isEditing,
   onEdit,

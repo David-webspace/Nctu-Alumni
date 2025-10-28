@@ -13,7 +13,7 @@ interface NewsItem {
 }
 
 const LatestNews = () => {
-  const [newsList, setNewsList] = useState<any[]>([]);
+  const [newsList, setNewsList] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,14 +26,14 @@ const LatestNews = () => {
             page: { pageNumber: 1, pageSize: 6, totalCount: 0 },
           },
         };
-        const res = await queryNews(requestBody as any);
-        const items = (res?.tranRs?.items || []) as any[];
+        const res = await queryNews(requestBody as { mwHeader: { requestId: string }; tranRq: { page: { pageNumber: number; pageSize: number; totalCount: number } } });
+        const items = (res?.tranRs?.items || []) as Array<{ newsId?: string; id?: number; title: string; publishDate?: string; start_date?: string; expireDate?: string; endDate?: string; imageUrl?: string; thumbnail?: string }>;
         // Map backend fields to UI fields expected by this component
-        const mapped = items.map((i) => ({
-          id: i.newsId ?? i.id,
+        const mapped: NewsItem[] = items.map((i, index) => ({
+          id: Number(i.newsId ?? i.id ?? index),
           title: i.title,
-          start_date: i.publishDate ?? i.start_date,
-          endDate: i.expireDate ?? i.endDate,
+          start_date: i.publishDate ?? i.start_date ?? '',
+          endDate: i.expireDate ?? i.endDate ?? '',
           thumbnail: i.imageUrl ?? i.thumbnail,
         }));
         setNewsList(mapped);

@@ -19,7 +19,7 @@ import {
 } from '@dnd-kit/sortable';
 
 // Local imports
-import { queryConsitutions, updateChapter, updateArticle, updateArticles } from '@/app/api/constitutions';
+import { queryConsitutions, updateArticle } from '@/app/api/constitutions';
 import { ConstitutionData, ConstitutionResponse, Article } from './types';
 import { aboutMenuItems } from './constants';
 import { SortableChapterItem } from './components';
@@ -81,9 +81,10 @@ const AssociationInfoEditPage = () => {
       } else {
         setError('API 回應格式不正確');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('獲取章程資料時發生錯誤:', err);
-      setError(`無法載入章程資料: ${err.message || '未知錯誤'}`);
+      const error = err as { message?: string };
+      setError(`無法載入章程資料: ${error.message || '未知錯誤'}`);
     } finally {
       setLoading(false);
     }
@@ -136,7 +137,7 @@ const AssociationInfoEditPage = () => {
 
       await Promise.all(updatePromises);
       console.log('條文順序已保存到後端');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('保存條文順序時發生錯誤:', err);
       alert('保存條文順序失敗，請重試');
     }
@@ -202,9 +203,10 @@ const AssociationInfoEditPage = () => {
       setEditingArticleId(null);
       setEditedArticle(null);
       alert('保存成功！');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('保存條文時發生錯誤:', err);
-      alert(`保存失敗: ${err.message || '未知錯誤'}`);
+      const error = err as { message?: string };
+      alert(`保存失敗: ${error.message || '未知錯誤'}`);
     } finally {
       setSaving(false);
     }

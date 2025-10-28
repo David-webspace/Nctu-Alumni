@@ -37,11 +37,11 @@ export default function NewsDetailPage() {
           mwHeader: { requestId: `req-${Date.now()}` },
           tranRq: { items: { newsId: id } },
         };
-        const res = await getNewsById(requestBody as any);
+        const res = await getNewsById(requestBody as { mwHeader: { requestId: string }; tranRq: { items: { newsId: string } } });
         // 假設回應為 { tranRs: { item: {...} } } 或 { tranRs: { items: {...} } }
         const detail: NewsDetail = res?.tranRs?.item || res?.tranRs?.items || res?.item || res;
         setData(detail || null);
-      } catch (e: any) {
+      } catch (e: unknown) {
         console.error("getNewsById error", e);
         setError("讀取消息內容失敗");
       } finally {

@@ -34,7 +34,7 @@ export default function EditNewsPage() {
     getNewsById(id)
       .then(res => {
         setNews(res);
-        console.log(news);
+        console.log(res);
         setForm({
           title: res.title || "",
           start_date: res.start_date || "",

@@ -61,12 +61,13 @@ export default function ConstitutionPage() {
           console.error('API 回應格式不正確:', response);
           setError('API 回應格式不正確');
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('獲取章程資料時發生錯誤:', err);
-        console.error('錯誤詳情:', err.response?.data);
-        console.error('錯誤狀態:', err.response?.status);
-        console.error('錯誤訊息:', err.message);
-        setError(`無法載入章程資料: ${err.message || '未知錯誤'}`);
+        const error = err as { response?: { data?: unknown; status?: number }; message?: string };
+        console.error('錯誤詳情:', error.response?.data);
+        console.error('錯誤狀態:', error.response?.status);
+        console.error('錯誤訊息:', error.message);
+        setError(`無法載入章程資料: ${error.message || '未知錯誤'}`);
       } finally {
         setLoading(false);
       }
