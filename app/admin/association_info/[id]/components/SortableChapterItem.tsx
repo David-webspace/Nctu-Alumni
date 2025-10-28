@@ -141,7 +141,6 @@ export const SortableChapterItem: React.FC<SortableChapterProps> = ({
                   <SortableArticleItem
                     key={art.id}
                     article={displayArticle}
-                    chapterId={chapter.chapter.id}
                     index={index}
                     isEditing={isEditing}
                     onEdit={() => onEditArticle(chapter.chapter.id, art.id)}
