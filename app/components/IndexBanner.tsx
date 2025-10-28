@@ -18,9 +18,9 @@ const IndexBanner = () => {
           <div>新竹市大學路1001號 交大校友會</div>
           <div>1001, Ta Hsueh Rd, Hsin-chu, Taiwan, R.O.C.</div>
           <div>校友會專線：03-5734558</div>
-          <div>傳真：03-5721473</div>
-          <div>或校友交流中心：03-5712121 轉分機31926</div>
-          <div>alumni@aa.nctu.edu.tw</div>
+          <div>傳真：03-5721497</div>
+          <div>校內電話：03-5712121轉31926</div>
+          <div>校友會信箱：alumni@nctuaa.org.tw</div>
         </div>
       </section>
       {/* Right Side */}

@@ -1,8 +1,8 @@
 "use client";
 import Link from "next/link";
-import { getNews } from "../api/news";
+import { queryNews } from "../api/news";
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import Image from 'next/image';
 
 interface NewsItem {
   id: number;
@@ -13,20 +13,38 @@ interface NewsItem {
 }
 
 const LatestNews = () => {
-
-  const [newsList, setNewsList] = useState<NewsItem[]>([]);
+  const [newsList, setNewsList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getNews()
-      .then(data => {
-        console.log(data);
-        setNewsList(data);
+    const fetchNews = async () => {
+      setLoading(true);
+      try {
+        const requestBody = {
+          mwHeader: { requestId: `req-${Date.now()}` },
+          tranRq: {
+            page: { pageNumber: 1, pageSize: 6, totalCount: 0 },
+          },
+        };
+        const res = await queryNews(requestBody as any);
+        const items = (res?.tranRs?.items || []) as any[];
+        // Map backend fields to UI fields expected by this component
+        const mapped = items.map((i) => ({
+          id: i.newsId ?? i.id,
+          title: i.title,
+          start_date: i.publishDate ?? i.start_date,
+          endDate: i.expireDate ?? i.endDate,
+          thumbnail: i.imageUrl ?? i.thumbnail,
+        }));
+        setNewsList(mapped);
+      } catch (error) {
+        console.error('queryNews error:', error);
+        setNewsList([]);
+      } finally {
         setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-      });
+      }
+    };
+    fetchNews();
   }, []);
 
   return (
@@ -48,27 +66,35 @@ const LatestNews = () => {
           <div className="text-center py-10">載入中...</div>
         ) : (
           <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mt-6">
-            {newsList.map((item) => (
-              <div
-                key={item.id}
-                className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden flex flex-col min-h-[260px]"
-              >
-                <div className="aspect-w-4 aspect-h-3 bg-gray-100">
-                  <Image
-                    src={item.thumbnail || '/news-default.jpg'}
-                    alt={item.title}
-                    width={500}
-                    height={500}
-                    className="object-cover w-full h-full"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="p-3 sm:p-4 flex-1 flex flex-col">
-                  <div className="font-bold text-gray-700 text-base sm:text-lg mb-2 line-clamp-2">{item.title}</div>
-                  <div className="text-xs text-gray-500 mt-auto">{item.start_date}</div>
-                </div>
-              </div>
-            ))}
+            {newsList.length === 0 ? (
+              <div className="col-span-full text-center text-gray-400">暫無最新消息</div>
+            ) : (
+              newsList.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/news/${item.id}`}
+                  aria-label={`查看消息：${item.title}`}
+                  className="group"
+                >
+                  <div className="bg-white rounded-lg shadow transition group-hover:shadow-lg overflow-hidden flex flex-col min-h-[260px] cursor-pointer">
+                    <div className="aspect-w-4 aspect-h-3 bg-gray-100">
+                      <Image
+                        src={item.thumbnail || '/news-default.jpg'}
+                        alt={item.title}
+                        width={500}
+                        height={500}
+                        className="object-cover w-full h-full"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="p-3 sm:p-4 flex-1 flex flex-col">
+                      <div className="font-bold text-gray-700 text-base sm:text-lg mb-2 line-clamp-2 group-hover:text-black">{item.title}</div>
+                      <div className="text-xs text-gray-500 mt-auto">{item.start_date}</div>
+                    </div>
+                  </div>
+                </Link>
+              ))
+            )}
           </div>
         )}
         <Link href="/news" className="block mt-8 text-black font-bold hover:underline text-center w-full">

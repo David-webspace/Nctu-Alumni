@@ -1,26 +1,62 @@
 "use client";
 import React from 'react';
-import { getNews } from '../../api/news';
+import { queryNews, removeNews } from '../../api/news';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface NewsItem {
-  id: number;
+  newsId?: string;
   title: string;
-  start_date: string;
-  end_date?: string;
-  thumbnail?: string;
+  content: string;
+  publishDate: string;
+  expireDate?: string;
+  status?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  authorId?: number;
+  imageUrl?: string;
+  imageAlt?: string;
 }
+
 
 const LatestNewsPage = () => {
   const router = useRouter();
   const [newsData, setNewsData] = useState<NewsItem[]>([]);
 
+  const handleDelete = async (newsId?: string) => {
+    if (!newsId) return;
+    try {
+      const requestBody = {
+        mwHeader: { requestId: `req-${Date.now()}` },
+        tranRq: { items: { newsId } }
+      };
+      await removeNews(requestBody);
+      // 重新查詢最新列表
+      const queryBody = {
+        mwHeader: { requestId: `req-${Date.now()}` },
+        tranRq: {
+          page: { pageNumber: 1, pageSize: 20, totalCount: 0 },
+        },
+      };
+      const res = await queryNews(queryBody);
+      setNewsData(res.tranRs?.items || []);
+    } catch (err) {
+      alert('刪除失敗');
+    }
+  };
 
   useEffect(() => {
-    getNews()
-      .then(data => {
-        setNewsData(data);
+    const requestBody = {
+      mwHeader: { requestId: `req-${Date.now()}` },
+      tranRq: {
+        page: { pageNumber: 1, pageSize: 20, totalCount: 0 },
+      }
+    };
+    queryNews(requestBody)
+      .then(res => {
+        console.log('查詢回傳：', res);
+        setNewsData(res.tranRs?.items || []);
+        console.log('newsData', res.tranRs?.items);
       })
       .catch((err) => {
         console.error(err);
@@ -53,24 +89,42 @@ const LatestNewsPage = () => {
           <thead>
             <tr className="border-b border-gray-200 text-left text-gray-500">
               {/* <th className="py-3 px-2 font-normal w-12">#</th> */}
-              <th className="py-3 px-2 font-normal">標題</th>
-              <th className="py-3 px-2 font-normal w-64">有效時間</th>
+              <th className="py-3 px-2 font-normal w-40">標題</th>
+              <th className="py-3 px-2 font-normal w-60">描述</th>
+              <th className="py-3 px-2 font-normal w-24">發布日期</th>
+              <th className="py-3 px-2 font-normal w-24">有效日期</th>
+              <th className="py-3 px-2 font-normal w-24">消息狀態</th>
+              <th className="py-3 px-2 font-normal w-24">建立時間</th>
+              <th className="py-3 px-2 font-normal w-24">更新時間</th>
+              <th className="py-3 px-2 font-normal w-24">作者ID</th>
+              {/* <th className="py-3 px-2 font-normal w-24">圖片</th> */}
+              {/* <th className="py-3 px-2 font-normal w-24">圖片描述</th> */}
+              {/* <th className="py-3 px-2 font-normal w-24">消息ID</th> */}
               <th className="py-3 px-2 font-normal w-24">動作</th>
             </tr>
           </thead>
           <tbody className="text-gray-800">
-            {newsData.map((item) => (
-              <tr key={item.id} className="border-b border-gray-200">
-                {/* <td className="py-4 px-2">{item.id}</td> */}
+            {newsData.map((item, idx) => (
+              <tr key={item.newsId || idx} className="border-b border-gray-200">
                 <td className="py-4 px-2">{item.title}</td>
-                <td className="py-4 px-2 text-gray-600">
-                  <div>{item.start_date}</div>
-                  <div>{item.end_date}</div>
-                </td>
+                <td className="py-4 px-2">{item.content}</td>
+                <td className="py-4 px-2">{item.publishDate}</td>
+                <td className="py-4 px-2">{item.expireDate}</td>
+                <td className="py-4 px-2">{item.status}</td>
+                <td className="py-4 px-2">{item.createdAt}</td>
+                <td className="py-4 px-2">{item.updatedAt}</td>
+                <td className="py-4 px-2">{item.authorId}</td>
+                {/* <td className="py-4 px-2">
+                  {item.imageUrl && (
+                    <img src={item.imageUrl} alt={item.imageAlt || '預覽圖'} className="max-h-20 rounded border" />
+                  )}
+                </td> */}
+                {/* <td className="py-4 px-2">{item.imageAlt}</td> */}
+                {/* <td className="py-4 px-2">{item.newsId}</td> */}
                 <td className="py-4 px-2">
                   <div className="flex items-center space-x-4">
-                    <button onClick={() => router.push(`/admin/latest_news/${item.id}`)}><DeleteIcon /></button>
-                    <button onClick={() => router.push(`/admin/latest_news/${item.id}`)}><EditIcon /></button>
+                    <button onClick={() => handleDelete(item.newsId)}><DeleteIcon /></button>
+                    <button onClick={() => router.push(`/admin/latest_news/editNews/${item.newsId}`)}><EditIcon /></button>
                   </div>
                 </td>
               </tr>

@@ -5,12 +5,28 @@ export const getNews = async () => {
     return res.data;
 }
 
-export const getNewsById = async (id) => {
-    const res = await axiosInstance.get(`/news/${id}`);
+export const getNewsById = async (userData) => {
+    const res = await axiosInstance.post(`/news/getNews`, userData);
+    return res.data;
+};
+
+// 查詢最新消息，userData 格式需符合後端 Spring Boot API 要求
+export const queryNews = async (userData) => {
+    const res = await axiosInstance.post('/news/query', userData );
     return res.data;
 };
 
 export const createNews = async (userData) => {
-    const res = await axiosInstance.post('/news/createNews', userData );
+    const res = await axiosInstance.post('/news/create', userData );
+    return res.data;
+};
+
+export const updateNews = async (userData) => {
+    const res = await axiosInstance.post('/news/update', userData );
+    return res.data;
+};
+
+export const removeNews = async (userData) => {
+    const res = await axiosInstance.post('/news/remove', userData );
     return res.data;
 };

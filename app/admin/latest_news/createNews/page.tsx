@@ -10,20 +10,61 @@ export default function CreateNewsPage() {
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: "",
-    start_date: "",
-    end_date: "",
-    thumbnail: "",
-    new_description: "",
+    content: "",
+    publishDate: "",
+    expireDate: "",
+    status: "draft",
+    createdAt: "",
+    updatedAt: "",
+    authorId: "",
+    imageUrl: "",
+    imageAlt: "",
+    newsId: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // 處理日期型欄位
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  // 處理數字型欄位
+  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value ? Number(e.target.value) : '' });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createNews(form);
+      // 組裝 request 格式
+      const now = new Date().toISOString();
+      const requestBody = {
+        mwHeader: {
+          requestId: `req-${Date.now()}`,
+        },
+        tranRq: {
+          page: {
+            pageNumber: 1,
+            pageSize: 10,
+            totalCount: 1,
+          },
+          items: [
+            {
+              ...form,
+              publishDate: form.publishDate || now,
+              expireDate: form.expireDate || '',
+              createdAt: form.createdAt || now,
+              updatedAt: form.updatedAt || now,
+              imageUrl: form.imageUrl || '',
+              newsId: form.newsId || '',
+            },
+          ],
+        },
+      };
+      await createNews(requestBody);
       router.push("/admin/latest_news");
     } catch {
       setError("新增失敗");
@@ -38,25 +79,55 @@ export default function CreateNewsPage() {
           <label className="block font-medium mb-1 text-gray-600">標題</label>
           <input name="title" value={form.title} onChange={handleChange} className="w-full border px-3 py-2 rounded text-gray-600" required />
         </div>
+        <div>
+          <label className="block font-medium mb-1 text-gray-600">描述</label>
+          <div data-color-mode="light">
+            <MDEditor
+              value={form.content}
+              onChange={val => setForm(f => ({ ...f, content: val || "" }))}
+              height={200}
+              preview="edit"
+            />
+          </div>
+        </div>
         <div className="flex gap-4">
           <div>
-            <label className="block font-medium mb-1 text-gray-600">開始日期</label>
-            <input type="date" name="start_date" value={form.start_date} onChange={handleChange} className="w-full border px-3 py-2 rounded text-gray-600" />
+            <label className="block font-medium mb-1 text-gray-600">發布日期</label>
+            <input type="datetime-local" name="publishDate" value={form.publishDate} onChange={handleDateChange} className="w-full border px-3 py-2 rounded text-gray-600" />
           </div>
           <div>
             <label className="block font-medium mb-1 text-gray-600">結束日期</label>
-            <input type="date" name="end_date" value={form.end_date} onChange={handleChange} className="w-full border px-3 py-2 rounded text-gray-600" />
+            <input type="datetime-local" name="expireDate" value={form.expireDate} onChange={handleDateChange} className="w-full border px-3 py-2 rounded text-gray-600" />
+          </div>
+        </div>
+        <div className="flex gap-4">
+          <div>
+            <label className="block font-medium mb-1 text-gray-600">狀態</label>
+            <input name="status" value={form.status} onChange={handleChange} className="w-full border px-3 py-2 rounded text-gray-600" placeholder="draft/published" />
+          </div>
+          <div>
+            <label className="block font-medium mb-1 text-gray-600">作者ID</label>
+            <input name="authorId" type="number" value={form.authorId} onChange={handleNumberChange} className="w-full border px-3 py-2 rounded text-gray-600" />
           </div>
         </div>
         <div>
-          <label className="block font-medium mb-1 text-gray-600">封面圖片</label>
+          <label className="block font-medium mb-1 text-gray-600">圖片描述</label>
+          <input name="imageAlt" value={form.imageAlt} onChange={handleChange} className="w-full border px-3 py-2 rounded text-gray-600" />
+        </div>
+        <div>
+          <label className="block font-medium mb-1 text-gray-600">newsId（可留空）</label>
+          <input name="newsId" value={form.newsId} onChange={handleChange} className="w-full border px-3 py-2 rounded text-gray-600" />
+        </div>
+        <div>
+          <label className="block font-medium mb-1 text-gray-600">封面圖片網址</label>
           <input
-            name="thumbnail"
-            value={form.thumbnail}
+            name="imageUrl"
+            value={form.imageUrl}
             onChange={handleChange}
             className="w-full border px-3 py-2 rounded text-gray-600 mb-2"
-            placeholder="請輸入圖片網址或直接上傳圖片"
+            placeholder="請輸入圖片網址"
           />
+          <label className="block font-medium mb-1 text-gray-600">或直接上傳圖片</label>
           <input
             type="file"
             accept="image/png, image/jpeg"
@@ -65,35 +136,24 @@ export default function CreateNewsPage() {
               if (!file) return;
               const reader = new FileReader();
               reader.onload = async (ev) => {
-                setForm(f => ({ ...f, thumbnail: ev.target?.result as string }));
+                setForm(f => ({ ...f, imageUrl: ev.target?.result as string }));
               };
               reader.readAsDataURL(file);
             }}
             className="mt-1"
           />
-          {form.thumbnail && (
+          {form.imageUrl && (
             <div className="mt-2">
               <p>預覽圖</p>
               <Image
-                src={form.thumbnail}
-                alt="預覽圖"
+                src={form.imageUrl}
+                alt={form.imageAlt || "預覽圖"}
                 width={400}
                 height={300}
                 className="max-h-40 rounded border"
               />
             </div>
           )}
-        </div>
-        <div>
-          <label className="block font-medium mb-1 text-gray-600">描述</label>
-          <div data-color-mode="light">
-            <MDEditor
-              value={form.new_description}
-              onChange={val => setForm(f => ({ ...f, new_description: val || "" }))}
-              height={200}
-              preview="edit"
-            />
-          </div>
         </div>
         <div className="flex gap-4 mt-6">
           <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">新增</button>
