@@ -1,18 +1,15 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { updateNews, getNewsById } from '../../../../api/news';
 
-interface EditNewsPageProps {
-  params: {
-    newsId?: string;
-  };
-}
-
-export default function EditNewsPage({ params }: EditNewsPageProps) {
+export default function EditNewsPage() {
   const router = useRouter();
+  const params = useParams();
+  const newsId = params.newsId as string | undefined;
+  
   const [form, setForm] = useState({
-    newsId: params.newsId || '',
+    newsId: newsId || '',
     title: '',
     content: '',
     publishDate: '',
@@ -28,11 +25,11 @@ export default function EditNewsPage({ params }: EditNewsPageProps) {
 
   useEffect(() => {
     const fetchNews = async () => {
-      if (!params.newsId) return;
+      if (!newsId) return;
       try {
         const requestBody = {
           mwHeader: { requestId: `req-${Date.now()}` },
-          tranRq: { items: { newsId: params.newsId } }
+          tranRq: { items: { newsId: newsId } }
         };
         const res = await getNewsById(requestBody);
         // 根據實際回傳格式調整
@@ -55,7 +52,7 @@ export default function EditNewsPage({ params }: EditNewsPageProps) {
       }
     };
     fetchNews();
-  }, [params.newsId]);
+  }, [newsId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
