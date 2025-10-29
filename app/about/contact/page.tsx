@@ -1,7 +1,7 @@
 import React from 'react';
 
 const contactInfo = {
-  workingHours: '週一～週五 上午8:30~12:00 下午1:30~5:30',
+  workingHours: '週一～週五 上午9:00~下午6:00',
   phone: '03-5734558',
   address: '地址：新竹市大學路1001號（交大校友會）辦公室位置：交大浩然圖書館地下一樓',
   email: 'alumni@nctuaa.org.tw',
@@ -10,11 +10,10 @@ const contactInfo = {
 const members = [
   { name: '陳俊秀', title: '執行長', extension: '51479' },
   { name: '王統億', title: '副執行長', extension: '51470' },
+  { name: '陳延昇', title: '', extension: '51472' },
+  { name: '程惠芳', title: '', extension: '51472' },
+  { name: '倪堉書', title: '', extension: '51472' },
   { name: '王怡方', title: '友聲雜誌社 主編', extension: '51472' },
-  { name: '李小姐', title: '', extension: '51471' },
-  { name: '葉小姐', title: '', extension: '51475' },
-  { name: '王小姐', title: '', extension: '51484' },
-  { name: '張小姐', title: '', extension: '31926' },
 ];
 
 export default function ContactPage() {

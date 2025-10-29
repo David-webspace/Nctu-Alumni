@@ -37,7 +37,7 @@ const Header = () => {
           <Link href="/" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">首頁</Link>
           <Link href="/#latest-news" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">最新消息</Link>
           <Link href="/#activity-calendar" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">活動行事曆</Link>
-          <Link href="/#plan-and-donation" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">計畫與捐贈</Link>
+          {/* <Link href="/#plan-and-donation" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">計畫與捐贈</Link> */}
           {/* Dropdown for 關於校友會 */}
           <div className="relative group inline-block">
             <button
@@ -51,9 +51,9 @@ const Header = () => {
                 <li>
                   <Link href="/about/constitution" className="block px-4 py-3 hover:bg-blue-100 font-bold text-black">組織章程與架構</Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link href="/about/ceo" className="block px-4 py-3 hover:bg-blue-100 font-bold text-black">理事長的話</Link>
-                </li>
+                </li> */}
                 <li>
                   <Link href="/about/contact" className="block px-4 py-3 hover:bg-blue-100 font-bold text-black">相關聯絡訊息</Link>
                 </li>
@@ -109,13 +109,13 @@ const Header = () => {
             <Link href="/" className="py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">首頁</Link>
             <Link href="/#latest-news" className="py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">最新消息</Link>
             <Link href="/#activity-calendar" className="py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">活動行事曆</Link>
-            <Link href="/#plan-and-donation" className="py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">計畫與捐贈</Link>
+            {/* <Link href="/#plan-and-donation" className="py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">計畫與捐贈</Link> */}
             {/* Dropdown for 關於校友會 */}
             <details className="py-2">
               <summary className="cursor-pointer text-gray-700 hover:text-blue-700 font-medium">關於校友會</summary>
               <ul className="ml-4 mt-2 border-l border-blue-200 pl-2">
                 <li><Link href="/about/constitution" className="block py-2 font-bold text-black hover:bg-blue-100">組織章程與架構</Link></li>
-                <li><Link href="/about/ceo" className="block py-2 font-bold text-black hover:bg-blue-100">理事長的話</Link></li>
+                {/* <li><Link href="/about/ceo" className="block py-2 font-bold text-black hover:bg-blue-100">理事長的話</Link></li> */}
                 <li><Link href="/about/contact" className="block py-2 font-bold text-black hover:bg-blue-100">相關聯絡訊息</Link></li>
                 <li><Link href="/about/board" className="block py-2 font-bold text-black hover:bg-blue-100">理監事名單</Link></li>
                 <li><Link href="/about/clubs" className="block py-2 font-bold text-black hover:bg-blue-100">社團介紹/系友會介紹</Link></li>

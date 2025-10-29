@@ -2,15 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-
-// Define types for the content blocks
-type ContentBlockType = 'image' | 'text';
-
-interface Block {
-  id: number;
-  type: ContentBlockType;
-  content: string; // For text content or image URL
-}
+import type { ContentBlockType, Block } from '@/app/dto/association/interface.dto';
 
 // Placeholder for a rich text editor component
 const RichTextEditor = ({ value, onChange }: { value: string; onChange: (value: string) => void }) => {
@@ -22,7 +14,7 @@ const RichTextEditor = ({ value, onChange }: { value: string; onChange: (value: 
         <button type="button" className="italic">I</button>
         <button type="button" className="underline">U</button>
       </div>
-      <textarea 
+      <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full h-48 p-2 focus:outline-none"
@@ -70,8 +62,8 @@ const AssociationIntroPage = () => {
       <div className="mb-6">
         <label htmlFor="pageTitle" className="block mb-1 text-sm font-medium text-gray-700">標題</label>
         <div className="relative">
-          <input 
-            type="text" 
+          <input
+            type="text"
             id="pageTitle"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
