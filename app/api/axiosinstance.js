@@ -3,7 +3,7 @@ import axios from "axios";
 // API URL configuration
 // Production: EC2 backend
 // Development: Local Spring Boot
-const apiURL = process.env.NEXT_PUBLIC_API_URL || "http://3.115.1.98:8080/api";
+const apiURL = process.env.NEXT_PUBLIC_API_URL || "https://api.nctuaa.org.tw/api";
 console.log("🔗 API Base URL:", apiURL);
 
 const axiosInstance = axios.create({
