@@ -3,14 +3,8 @@ import Link from "next/link";
 import { queryNews } from "../api/news";
 import { useEffect, useState } from "react";
 import Image from 'next/image';
-
-interface NewsItem {
-  id: number;
-  title: string;
-  start_date: string;
-  endDate: string;
-  thumbnail?: string;
-}
+import { NewsItem } from "./interface.dto";
+import { formatDate } from "../utils/dateFormatter";
 
 const LatestNews = () => {
   const [newsList, setNewsList] = useState<NewsItem[]>([]);
@@ -27,16 +21,8 @@ const LatestNews = () => {
           },
         };
         const res = await queryNews(requestBody as { mwHeader: { requestId: string }; tranRq: { page: { pageNumber: number; pageSize: number; totalCount: number } } });
-        const items = (res?.tranRs?.items || []) as Array<{ newsId?: string; id?: number; title: string; publishDate?: string; start_date?: string; expireDate?: string; endDate?: string; imageUrl?: string; thumbnail?: string }>;
-        // Map backend fields to UI fields expected by this component
-        const mapped: NewsItem[] = items.map((i, index) => ({
-          id: Number(i.newsId ?? i.id ?? index),
-          title: i.title,
-          start_date: i.publishDate ?? i.start_date ?? '',
-          endDate: i.expireDate ?? i.endDate ?? '',
-          thumbnail: i.imageUrl ?? i.thumbnail,
-        }));
-        setNewsList(mapped);
+        const items = (res?.tranRs?.items || []) as NewsItem[];
+        setNewsList(items);
       } catch (error) {
         console.error('queryNews error:', error);
         setNewsList([]);
@@ -71,25 +57,25 @@ const LatestNews = () => {
             ) : (
               newsList.map((item) => (
                 <Link
-                  key={item.id}
-                  href={`/news/${item.id}`}
+                  key={item.newsId}
+                  href={`/news/${item.newsId}`}
                   aria-label={`查看消息：${item.title}`}
                   className="group"
                 >
-                  <div className="bg-white rounded-lg shadow transition group-hover:shadow-lg overflow-hidden flex flex-col min-h-[260px] cursor-pointer">
-                    <div className="aspect-w-4 aspect-h-3 bg-gray-100">
+                  <div className="bg-white rounded-lg shadow transition group-hover:shadow-lg overflow-hidden flex flex-col h-full cursor-pointer">
+                    <div className="relative w-full h-48 bg-gray-100">
                       <Image
-                        src={item.thumbnail || '/news-default.jpg'}
-                        alt={item.title}
-                        width={500}
-                        height={500}
-                        className="object-cover w-full h-full"
+                        src={item.imageUrl || '/news-default.jpg'} 
+                        alt={item.imageAlt || item.title}
+                        fill
+                        className="object-cover"
                         loading="lazy"
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
                       />
                     </div>
                     <div className="p-3 sm:p-4 flex-1 flex flex-col">
                       <div className="font-bold text-gray-700 text-base sm:text-lg mb-2 line-clamp-2 group-hover:text-black">{item.title}</div>
-                      <div className="text-xs text-gray-500 mt-auto">{item.start_date}</div>
+                      <div className="text-xs text-gray-500 mt-auto">{formatDate(item.publishDate)}</div>
                     </div>
                   </div>
                 </Link>
