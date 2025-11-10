@@ -13,8 +13,23 @@ export interface NewsItem {
 }
 
 export interface EmployeeItem {
-    empId: string;  // 改為 string，因為 API 回傳 "E001" 格式
+    empId: string;
     empName: string;
     title: string;
     tel: string;
+}
+
+export interface MemberItem {
+    memberId: string;
+    memberName: string;
+    personalId: string;
+    gender: string;
+    email: string;
+    phone: string;
+    department: string;
+    minor: string;
+    branch: string;
+    role: string;
+    graduatedYear: string;
+    startYear: string;
 }

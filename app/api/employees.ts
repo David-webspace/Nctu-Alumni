@@ -1,5 +1,5 @@
 import { EmployeeItem } from "../components/interface.dto";
-import { EmployeeQueryRequest, EmployeeQueryResponse } from "../components/interface.dto.re";
+import { EmployeeQueryRequest, EmployeeQueryResponse } from "../components/interface.dto.req";
 import axiosInstance from "./axiosinstance";
 
 /**
