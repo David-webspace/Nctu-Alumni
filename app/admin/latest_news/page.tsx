@@ -4,21 +4,7 @@ import { queryNews, removeNews } from '../../api/news';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatISOToDateTime } from '@/app/utils/dateFormatter';
-
-interface NewsItem {
-  newsId?: string;
-  title: string;
-  content: string;
-  publishDate: string;
-  expireDate?: string;
-  status?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  authorId?: number;
-  imageUrl?: string;
-  imageAlt?: string;
-}
-
+import { NewsItem } from '@/app/components/interface.dto.req';
 
 const LatestNewsPage = () => {
   const router = useRouter();
@@ -93,7 +79,7 @@ const LatestNewsPage = () => {
               <th className="py-3 px-2 font-normal w-60">描述</th>
               <th className="py-3 px-2 font-normal w-24">發布日期</th>
               <th className="py-3 px-2 font-normal w-24">有效日期</th>
-              <th className="py-3 px-2 font-normal w-24">消息狀態</th>
+              {/* <th className="py-3 px-2 font-normal w-24">消息狀態</th> */}
               <th className="py-3 px-2 font-normal w-24">建立時間</th>
               <th className="py-3 px-2 font-normal w-24">更新時間</th>
               <th className="py-3 px-2 font-normal w-24">作者ID</th>
@@ -111,7 +97,7 @@ const LatestNewsPage = () => {
                 </td>
                 <td className="py-4 px-2">{formatISOToDateTime(item.publishDate)}</td>
                 <td className="py-4 px-2">{formatISOToDateTime(item.expireDate || '')}</td>
-                <td className="py-4 px-2">{item.status}</td>
+                {/* <td className="py-4 px-2">{item.status}</td> */}
                 <td className="py-4 px-2">{formatISOToDateTime(item.createdAt || '')}</td>
                 <td className="py-4 px-2">{formatISOToDateTime(item.updatedAt || '')}</td>
                 <td className="py-4 px-2">{item.authorId}</td>

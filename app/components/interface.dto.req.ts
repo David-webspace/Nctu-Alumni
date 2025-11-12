@@ -44,3 +44,17 @@ export interface MemberQueryResponse<T> {
         totalCount: number;
     };
 }
+
+export interface NewsItem {
+  newsId?: string;
+  title: string;
+  content: string;
+  publishDate: string;
+  expireDate?: string;
+  status?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  authorId?: number;
+  imageUrl?: string;
+  imageAlt?: string;
+}

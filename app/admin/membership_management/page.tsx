@@ -6,18 +6,18 @@ import Pagination from '@/app/components/Pagination';
 import React, { useState } from 'react';
 
 // 將 InputField 移到組件外部，避免每次渲染時重新創建
-const InputField = ({ label, id, value, onChange, maxLength }: { 
-  label: string; 
-  id: string; 
-  value: string; 
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; 
-  maxLength: number 
+const InputField = ({ label, id, value, onChange, maxLength }: {
+  label: string;
+  id: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  maxLength: number
 }) => (
   <div className="flex flex-col">
     <label htmlFor={id} className="mb-1 text-sm font-medium text-gray-700">{label}</label>
     <div className="relative">
-      <input 
-        type="text" 
+      <input
+        type="text"
         id={id}
         value={value}
         onChange={onChange}
