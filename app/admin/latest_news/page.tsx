@@ -3,6 +3,7 @@ import React from 'react';
 import { queryNews, removeNews } from '../../api/news';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { formatISOToDateTime } from '@/app/utils/dateFormatter';
 
 interface NewsItem {
   newsId?: string;
@@ -88,7 +89,6 @@ const LatestNewsPage = () => {
         <table className="min-w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200 text-left text-gray-500">
-              {/* <th className="py-3 px-2 font-normal w-12">#</th> */}
               <th className="py-3 px-2 font-normal w-40">標題</th>
               <th className="py-3 px-2 font-normal w-60">描述</th>
               <th className="py-3 px-2 font-normal w-24">發布日期</th>
@@ -97,9 +97,6 @@ const LatestNewsPage = () => {
               <th className="py-3 px-2 font-normal w-24">建立時間</th>
               <th className="py-3 px-2 font-normal w-24">更新時間</th>
               <th className="py-3 px-2 font-normal w-24">作者ID</th>
-              {/* <th className="py-3 px-2 font-normal w-24">圖片</th> */}
-              {/* <th className="py-3 px-2 font-normal w-24">圖片描述</th> */}
-              {/* <th className="py-3 px-2 font-normal w-24">消息ID</th> */}
               <th className="py-3 px-2 font-normal w-24">動作</th>
             </tr>
           </thead>
@@ -107,20 +104,17 @@ const LatestNewsPage = () => {
             {newsData.map((item, idx) => (
               <tr key={item.newsId || idx} className="border-b border-gray-200">
                 <td className="py-4 px-2">{item.title}</td>
-                <td className="py-4 px-2">{item.content}</td>
-                <td className="py-4 px-2">{item.publishDate}</td>
-                <td className="py-4 px-2">{item.expireDate}</td>
+                <td className="py-4 px-2">
+                  <div className="line-clamp-2" title={item.content}>
+                    {item.content}
+                  </div>
+                </td>
+                <td className="py-4 px-2">{formatISOToDateTime(item.publishDate)}</td>
+                <td className="py-4 px-2">{formatISOToDateTime(item.expireDate || '')}</td>
                 <td className="py-4 px-2">{item.status}</td>
-                <td className="py-4 px-2">{item.createdAt}</td>
-                <td className="py-4 px-2">{item.updatedAt}</td>
+                <td className="py-4 px-2">{formatISOToDateTime(item.createdAt || '')}</td>
+                <td className="py-4 px-2">{formatISOToDateTime(item.updatedAt || '')}</td>
                 <td className="py-4 px-2">{item.authorId}</td>
-                {/* <td className="py-4 px-2">
-                  {item.imageUrl && (
-                    <img src={item.imageUrl} alt={item.imageAlt || '預覽圖'} className="max-h-20 rounded border" />
-                  )}
-                </td> */}
-                {/* <td className="py-4 px-2">{item.imageAlt}</td> */}
-                {/* <td className="py-4 px-2">{item.newsId}</td> */}
                 <td className="py-4 px-2">
                   <div className="flex items-center space-x-4">
                     <button onClick={() => handleDelete(item.newsId)}><DeleteIcon /></button>

@@ -168,7 +168,7 @@ const MembershipManagementPage = () => {
         <table className="min-w-full bg-white">
           <thead className="bg-gray-50">
             <tr>
-              {['姓名', '會員編號', '身分證號', '性別', '電話', 'Email', '系所', '輔系', '分會', '角色', '畢業年份', '入學年份', '動作'].map(header => (
+              {['姓名', '學號', '身分證號', '性別', '電話', 'Email', '系所', '輔系', '分會', '角色', '畢業年份', '入學年份', '動作'].map(header => (
                 <th key={header} className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">{header}</th>
               ))}
             </tr>
