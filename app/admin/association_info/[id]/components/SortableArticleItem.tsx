@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Article } from '../types';
+import { Article } from '../interface.dto';
 
 interface SortableArticleProps {
   article: Article;

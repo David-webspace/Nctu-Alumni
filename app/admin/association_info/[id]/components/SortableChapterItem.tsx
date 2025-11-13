@@ -16,7 +16,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ConstitutionData, Article } from '../types';
+import { ConstitutionData, Article } from '../interface.dto';
 import { SortableArticleItem } from './SortableArticleItem';
 
 interface SortableChapterProps {

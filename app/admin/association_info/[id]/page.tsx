@@ -2,22 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import boardDataJson from '@/app/data/boardData.json';
+
+// Local imports
+import { queryConsitutions, updateArticle } from '@/app/api/constitutions';
+import { ConstitutionData, ConstitutionResponse, Article, BoardListFieldKey, BoardDataMap, BoardRegion, BoardRegionKey, Member } from './interface.dto';
+import { aboutMenuItems } from './constants';
+import { SortableChapterItem } from './components';
 
 const boardRegionTabs = [
   { key: 'general', label: '總會' },
@@ -27,33 +20,6 @@ const boardRegionTabs = [
   { key: 'kaohsiung', label: '高雄分會' },
   { key: 'shanghai', label: '上海分會' },
 ] as const;
-
-type BoardRegionKey = typeof boardRegionTabs[number]['key'];
-
-type BoardListFieldKey =
-  | 'viceChairmen'
-  | 'executiveSecratary'
-  | 'executiveDirectors'
-  | 'directors'
-  | 'altDirectors'
-  | 'convener'
-  | 'executiveSupervisors'
-  | 'supervisors'
-  | 'altSupervisors';
-
-type BoardRegion = {
-  title: string;
-  description: string;
-  chairman: {
-    name: string;
-    title: string;
-    img: string;
-  };
-} & {
-  [K in BoardListFieldKey]: string[];
-};
-
-type BoardDataMap = Record<BoardRegionKey, BoardRegion>;
 
 const boardListFieldConfigs: { key: BoardListFieldKey; label: string }[] = [
   { key: 'viceChairmen', label: '副理事長' },
@@ -68,7 +34,19 @@ const boardListFieldConfigs: { key: BoardListFieldKey; label: string }[] = [
 ];
 
 const createInitialBoardData = (): BoardDataMap => {
-  const raw = boardDataJson as Record<string, any>;
+  type BoardDataRaw = Record<string, {
+  title?: string;
+  description?: string;
+  chairman?: {
+    name?: string;
+    title?: string;
+    img?: string;
+  };
+  [key: string]: any; // Define other fields explicitly if possible
+}>;
+
+const raw = boardDataJson as BoardDataRaw;
+
 
   return boardRegionTabs.reduce((acc, { key }) => {
     const region = raw[key] ?? {};
@@ -94,7 +72,20 @@ const createInitialBoardData = (): BoardDataMap => {
 
     boardListFieldConfigs.forEach(({ key: fieldKey }) => {
       const values = region[fieldKey];
-      baseRegion[fieldKey] = Array.isArray(values) ? [...values] : [];
+      if (Array.isArray(values)) {
+        // value may be string[] from JSON or Member[] already
+        baseRegion[fieldKey] = values.map((v: any) =>
+          typeof v === 'string'
+            ? { name: v, email: '', phone: '' } as Member
+            : {
+                name: v?.name ?? '',
+                email: v?.email ?? '',
+                phone: v?.phone ?? '',
+              } as Member
+        );
+      } else {
+        baseRegion[fieldKey] = [];
+      }
     });
 
     acc[key] = baseRegion;
@@ -102,11 +93,6 @@ const createInitialBoardData = (): BoardDataMap => {
   }, {} as BoardDataMap);
 };
 
-// Local imports
-import { queryConsitutions, updateArticle } from '@/app/api/constitutions';
-import { ConstitutionData, ConstitutionResponse, Article } from './types';
-import { aboutMenuItems } from './constants';
-import { SortableChapterItem } from './components';
 
 /**
  * Association Info Edit Page Component
@@ -174,7 +160,7 @@ const AssociationInfoEditPage = () => {
       if (field === 'title' || field === 'description') {
         region[field] = value;
       } else {
-        const [_, key] = field.split('.') as ['chairman', 'name' | 'title' | 'img'];
+        const [, key] = field.split('.') as ['chairman', 'name' | 'title' | 'img'];
         region.chairman = {
           ...region.chairman,
           [key]: value,
@@ -186,13 +172,19 @@ const AssociationInfoEditPage = () => {
     });
   };
 
-  const handleBoardListChange = (field: BoardListFieldKey, index: number, value: string) => {
+  const handleBoardMemberChange = (
+    field: BoardListFieldKey,
+    index: number,
+    prop: keyof Member,
+    value: string
+  ) => {
     setBoardData((prev) => {
       const updated = { ...prev };
       const region = { ...updated[activeBoardRegion] };
-      const list = [...region[field]];
-      list[index] = value;
-      region[field] = list;
+      const list = region[field].map((m) => ({ ...m }));
+      const target = { ...list[index], [prop]: value } as Member;
+      list[index] = target;
+      region[field] = list as BoardRegion[typeof field];
       updated[activeBoardRegion] = region;
       return updated;
     });
@@ -205,7 +197,10 @@ const AssociationInfoEditPage = () => {
     setBoardData((prev) => {
       const updated = { ...prev };
       const region = { ...updated[activeBoardRegion] };
-      region[field] = [...region[field], newName];
+      region[field] = [
+        ...region[field],
+        { name: newName, email: '', phone: '' } as Member,
+      ];
       updated[activeBoardRegion] = region;
       return updated;
     });
@@ -242,7 +237,7 @@ const AssociationInfoEditPage = () => {
       };
 
       const response: ConstitutionResponse = await queryConsitutions(requestData);
-      
+
       if (response && response.tranRs && response.tranRs.items) {
         setConstitutionData(response.tranRs.items);
       } else {
@@ -339,7 +334,7 @@ const AssociationInfoEditPage = () => {
 
     try {
       setSaving(true);
-      
+
       // 使用新的 updateArticle API（根據後端格式）
       const requestData = {
         mwHeader: {
@@ -352,7 +347,7 @@ const AssociationInfoEditPage = () => {
       };
 
       await updateArticle(requestData);
-      
+
       // 更新本地狀態
       setConstitutionData((items) =>
         items.map((item) =>
@@ -552,25 +547,37 @@ const AssociationInfoEditPage = () => {
                               尚未有資料，請新增成員。
                             </p>
                           ) : (
-                            <div className="space-y-2">
-                              {regionData[key].map((name, index) => (
-                                <div key={`${key}-${index}`} className="flex items-center gap-3">
-                                  <span className="text-xs text-gray-400 w-6">{index + 1}.</span>
-                                  <input
-                                    type="text"
-                                    value={name}
-                                    onChange={(e) => handleBoardListChange(key, index, e.target.value)}
-                                    className="flex-1 rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={() => handleRemoveBoardListItem(key, index)}
-                                    className="px-2 py-1 text-sm text-red-600 hover:text-red-800"
-                                  >
-                                    刪除
-                                  </button>
-                                </div>
-                              ))}
+                            <div className="overflow-x-auto border border-gray-200 rounded-md">
+                              <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-gray-50">
+                                  <tr>
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">姓名</th>
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">電話</th>
+                                    <th className="px-4 py-2" />
+                                  </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                  {regionData[key].map((member, index) => (
+                                    <tr key={`${key}-${index}`}>
+                                      <td className="px-4 py-2 text-sm text-gray-500 w-10">{index + 1}</td>
+                                      <td className="px-4 py-2 text-sm text-gray-900">{member.name}</td>
+                                      <td className="px-4 py-2 text-sm text-gray-900">{member.email}</td>
+                                      <td className="px-4 py-2 text-sm text-gray-900">{member.phone}</td>
+                                      <td className="px-4 py-2 text-right">
+                                        <button
+                                          type="button"
+                                          onClick={() => handleRemoveBoardListItem(key, index)}
+                                          className="px-2 py-1 text-sm text-red-600 hover:text-red-800"
+                                        >
+                                          刪除
+                                        </button>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
                             </div>
                           )}
                         </div>
@@ -673,7 +680,7 @@ const AssociationInfoEditPage = () => {
         </Link>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">{item.title}</h1>
         <p className="text-gray-600 mb-4">{item.description}</p>
-        
+
         {/* Info Banner */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm text-blue-800">
