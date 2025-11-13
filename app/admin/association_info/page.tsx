@@ -27,12 +27,12 @@ const aboutMenuItems = [
     href: '/about/board',
     description: '現任理監事成員名單'
   },
-  {
-    id: 'clubs',
-    title: '社團介紹/系友會介紹',
-    href: '/about/clubs',
-    description: '各社團與系友會資訊'
-  },
+  // {
+  //   id: 'clubs',
+  //   title: '社團介紹/系友會介紹',
+  //   href: '/about/clubs',
+  //   description: '各社團與系友會資訊'
+  // },
   {
     id: 'voice',
     title: '交大友聲',
