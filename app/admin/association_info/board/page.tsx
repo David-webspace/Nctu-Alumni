@@ -1,11 +1,12 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import boardDataJson from '@/app/data/boardData.json';
 
 // Local imports
-import { BoardListFieldKey, BoardDataMap, BoardRegion, BoardRegionKey, Member } from './interface.dto';
-import { aboutMenuItems } from './constants';
+import { BoardRegionKey, BoardItem, RoleItem } from './interface.dto';
+import { aboutMenuItems } from '../constants';
+import { queryBoards } from '@/app/api/boards';
+import { queryRoles } from '@/app/api/roles';
 
 const boardRegionTabs = [
   { key: 'general', label: '總會' },
@@ -16,78 +17,16 @@ const boardRegionTabs = [
   { key: 'shanghai', label: '上海分會' },
 ] as const;
 
-const boardListFieldConfigs: { key: BoardListFieldKey; label: string }[] = [
-  { key: 'viceChairmen', label: '副理事長' },
-  { key: 'executiveSecratary', label: '常務秘書' },
-  { key: 'executiveDirectors', label: '常務理事' },
-  { key: 'directors', label: '理事' },
-  { key: 'altDirectors', label: '候補理事' },
-  { key: 'convener', label: '監事召集人' },
-  { key: 'executiveSupervisors', label: '常務監事' },
-  { key: 'supervisors', label: '監事' },
-  { key: 'altSupervisors', label: '候補監事' },
-];
+// Dynamic roles are fetched from API; render will be based on roles list.
 
-const createInitialBoardData = (): BoardDataMap => {
-  type BoardDataRaw = Record<string, {
-  title?: string;
-  description?: string;
-  chairman?: {
-    name?: string;
-    title?: string;
-    img?: string;
-  };
-  [key: string]: unknown; // Define other fields explicitly if possible
-}>;
-
-const raw = boardDataJson as BoardDataRaw;
-
-
-  return boardRegionTabs.reduce((acc, { key }) => {
-    const region = raw[key] ?? {};
-
-    const baseRegion: BoardRegion = {
-      title: region.title ?? '',
-      description: region.description ?? '',
-      chairman: {
-        name: region.chairman?.name ?? '',
-        title: region.chairman?.title ?? '',
-        img: region.chairman?.img ?? '',
-      },
-      viceChairmen: [],
-      executiveSecratary: [],
-      executiveDirectors: [],
-      directors: [],
-      altDirectors: [],
-      convener: [],
-      executiveSupervisors: [],
-      supervisors: [],
-      altSupervisors: [],
-    };
-
-    boardListFieldConfigs.forEach(({ key: fieldKey }) => {
-      const values = region[fieldKey];
-      if (Array.isArray(values)) {
-        // value may be string[] from JSON or Member[] already
-        baseRegion[fieldKey] = values.map((v: string | Member) =>
-          typeof v === 'string'
-            ? { name: v, email: '', phone: '' } as Member
-            : {
-                name: v?.name ?? '',
-                email: v?.email ?? '',
-                phone: v?.phone ?? '',
-              } as Member
-        );
-      } else {
-        baseRegion[fieldKey] = [];
-      }
-    });
-
-    acc[key] = baseRegion;
-    return acc;
-  }, {} as BoardDataMap);
+const branchToRegionKey: Record<string, BoardRegionKey | undefined> = {
+  總會: 'general',
+  台北分會: 'taipei',
+  新竹分會: 'hsinchu',
+  台中分會: 'taichung',
+  高雄分會: 'kaohsiung',
+  上海分會: 'shanghai',
 };
-
 
 /**
  * Association Info Edit Page Component
@@ -98,80 +37,60 @@ const AssociationInfoEditPage = () => {
   const item = aboutMenuItems['board'];
 
   // ==================== State Management ====================
-  const [boardData, setBoardData] = useState<BoardDataMap>(createInitialBoardData());
   const [activeBoardRegion, setActiveBoardRegion] = useState<BoardRegionKey>('general');
-  const [newMemberNames, setNewMemberNames] = useState<Record<BoardListFieldKey, string>>({
-    viceChairmen: '',
-    executiveSecratary: '',
-    executiveDirectors: '',
-    directors: '',
-    altDirectors: '',
-    convener: '',
-    executiveSupervisors: '',
-    supervisors: '',
-    altSupervisors: '',
-  });
+  const [newMemberNames, setNewMemberNames] = useState<Record<string, string>>({});
+  const [boardItems, setboardItems] = useState<BoardItem[]>([]);
+  const [roles, setRoles] = useState<RoleItem[]>([]);
+
+  useEffect(() => {
+    queryBoards()
+      .then((res) => {
+        const boardItems = res.items || [];
+        setboardItems(boardItems);
+      })
+      .catch(() => {
+        // ignore
+      });
+
+      queryRoles()
+      .then((res) => {
+        const rolesArr = Array.isArray(res) ? res : (res as any)?.items ?? [];
+        setRoles(rolesArr);
+        console.log(roles);
+      })
+      .catch(() => {
+        // ignore
+      });
+  }, []);
+
+  // Build grouped structure: by region, then by roleId
+  const groupedByRegionAndRole = useMemo(() => {
+    const acc: Record<BoardRegionKey, Record<string, BoardItem[]>> = {
+      general: {},
+      taipei: {},
+      hsinchu: {},
+      taichung: {},
+      kaohsiung: {},
+      shanghai: {},
+    };
+    const roleNameToId = new Map<string, string>(roles.map(r => [r.role, r.roleId]));
+    for (const item of boardItems) {
+      const regionKey = branchToRegionKey[item.branch] ?? 'hsinchu';
+      const roleId = roleNameToId.get(item.role) ?? item.role; // fallback to role name
+      if (!acc[regionKey][roleId]) acc[regionKey][roleId] = [];
+      acc[regionKey][roleId].push(item);
+    }
+    return acc;
+  }, [boardItems, roles]);
 
   const handleBoardRegionChange = (region: BoardRegionKey) => {
     setActiveBoardRegion(region);
   };
 
-  const handleBoardBasicInfoChange = (
-    field: 'title' | 'description' | 'chairman.name' | 'chairman.title' | 'chairman.img',
-    value: string
-  ) => {
-    setBoardData((prev) => {
-      const updated = { ...prev };
-      const region = { ...updated[activeBoardRegion] };
-
-      if (field === 'title' || field === 'description') {
-        region[field] = value;
-      } else {
-        const [, key] = field.split('.') as ['chairman', 'name' | 'title' | 'img'];
-        region.chairman = {
-          ...region.chairman,
-          [key]: value,
-        };
-      }
-
-      updated[activeBoardRegion] = region;
-      return updated;
-    });
-  };
-
-  const handleAddBoardListItem = (field: BoardListFieldKey) => {
-    const newName = newMemberNames[field].trim();
-    if (!newName) return;
-
-    setBoardData((prev) => {
-      const updated = { ...prev };
-      const region = { ...updated[activeBoardRegion] };
-      region[field] = [
-        ...region[field],
-        { name: newName, email: '', phone: '' } as Member,
-      ];
-      updated[activeBoardRegion] = region;
-      return updated;
-    });
-
-    setNewMemberNames((prev) => ({ ...prev, [field]: '' }));
-  };
-
-  const handleRemoveBoardListItem = (field: BoardListFieldKey, index: number) => {
-    setBoardData((prev) => {
-      const updated = { ...prev };
-      const region = { ...updated[activeBoardRegion] };
-      region[field] = region[field].filter((_, idx) => idx !== index);
-      updated[activeBoardRegion] = region;
-      return updated;
-    });
-  };
-
-  const handleNewMemberInputChange = (field: BoardListFieldKey, value: string) => {
+  const handleNewMemberInputChange = (field: string, value: string) => {
     setNewMemberNames((prev) => ({ ...prev, [field]: value }));
   };
-  // ==================== Main Render (Board/Member only) ====================
-  const regionData = boardData[activeBoardRegion];
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="mb-8">
@@ -207,7 +126,7 @@ const AssociationInfoEditPage = () => {
 
           <section className="flex-1 p-6">
             <div className="grid gap-6">
-              <div>
+              {/* <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">基礎資訊</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -215,7 +134,7 @@ const AssociationInfoEditPage = () => {
                     <input
                       type="text"
                       value={regionData.title}
-                      onChange={(e) => handleBoardBasicInfoChange('title', e.target.value)}
+                      // onChange={(e) => handleBoardBasicInfoChange('title', e.target.value)}
                       className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -224,7 +143,7 @@ const AssociationInfoEditPage = () => {
                     <input
                       type="text"
                       value={regionData.chairman.title}
-                      onChange={(e) => handleBoardBasicInfoChange('chairman.title', e.target.value)}
+                      // onChange={(e) => handleBoardBasicInfoChange('chairman.title', e.target.value)}
                       className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -232,7 +151,7 @@ const AssociationInfoEditPage = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">分會描述</label>
                     <textarea
                       value={regionData.description}
-                      onChange={(e) => handleBoardBasicInfoChange('description', e.target.value)}
+                      // onChange={(e) => handleBoardBasicInfoChange('description', e.target.value)}
                       className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px]"
                     />
                   </div>
@@ -242,7 +161,7 @@ const AssociationInfoEditPage = () => {
                       <input
                         type="text"
                         value={regionData.chairman.name}
-                        onChange={(e) => handleBoardBasicInfoChange('chairman.name', e.target.value)}
+                        // onChange={(e) => handleBoardBasicInfoChange('chairman.name', e.target.value)}
                         className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
@@ -251,7 +170,7 @@ const AssociationInfoEditPage = () => {
                       <input
                         type="text"
                         value={regionData.chairman.img}
-                        onChange={(e) => handleBoardBasicInfoChange('chairman.img', e.target.value)}
+                        // onChange={(e) => handleBoardBasicInfoChange('chairman.img', e.target.value)}
                         placeholder="例如：https://example.com/chairman.jpg"
                         className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
@@ -259,26 +178,26 @@ const AssociationInfoEditPage = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">成員名單</h2>
                 <div className="space-y-8">
-                  {boardListFieldConfigs.map(({ key, label }) => (
-                    <div key={key}>
+                  {Array.isArray(roles) ? roles.map(({ roleId, role }) => (
+                    <div key={roleId}>
                       <div className="flex items-center justify-between mb-3">
-                        <label className="text-sm font-medium text-gray-700">{label}</label>
+                        <label className="text-sm font-medium text-gray-700">{role}</label>
                         <div className="flex gap-2">
                           <input
                             type="text"
-                            value={newMemberNames[key]}
-                            onChange={(e) => handleNewMemberInputChange(key, e.target.value)}
-                            placeholder={`新增${label}姓名`}
+                            value={newMemberNames[roleId]}
+                            onChange={(e) => handleNewMemberInputChange(roleId, e.target.value)}
+                            placeholder={`新增${role}姓名`}
                             className="w-48 rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                           <button
                             type="button"
-                            onClick={() => handleAddBoardListItem(key)}
+                            onClick={() => {}}
                             className="px-3 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                           >
                             新增
@@ -286,7 +205,7 @@ const AssociationInfoEditPage = () => {
                         </div>
                       </div>
 
-                      {regionData[key].length === 0 ? (
+                      {(() => { const members = groupedByRegionAndRole[activeBoardRegion][roleId] ?? groupedByRegionAndRole[activeBoardRegion][role] ?? []; return members.length === 0; })() ? (
                         <p className="text-sm text-gray-500 border border-dashed border-gray-300 rounded-md px-4 py-3">
                           尚未有資料，請新增成員。
                         </p>
@@ -303,16 +222,16 @@ const AssociationInfoEditPage = () => {
                               </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                              {regionData[key].map((member, index) => (
-                                <tr key={`${key}-${index}`}>
+                              {(groupedByRegionAndRole[activeBoardRegion][roleId] ?? groupedByRegionAndRole[activeBoardRegion][role] ?? []).map((member, index) => (
+                                <tr key={`${roleId}-${index}`}>
                                   <td className="px-4 py-2 text-sm text-gray-500 w-10">{index + 1}</td>
-                                  <td className="px-4 py-2 text-sm text-gray-900">{member.name}</td>
+                                  <td className="px-4 py-2 text-sm text-gray-900">{member.memberName}</td>
                                   <td className="px-4 py-2 text-sm text-gray-900">{member.email}</td>
                                   <td className="px-4 py-2 text-sm text-gray-900">{member.phone}</td>
                                   <td className="px-4 py-2 text-right">
                                     <button
                                       type="button"
-                                      onClick={() => handleRemoveBoardListItem(key, index)}
+                                      onClick={() => {}}
                                       className="px-2 py-1 text-sm text-red-600 hover:text-red-800"
                                     >
                                       刪除
@@ -325,7 +244,7 @@ const AssociationInfoEditPage = () => {
                         </div>
                       )}
                     </div>
-                  ))}
+                  )) : null}
                 </div>
               </div>
             </div>

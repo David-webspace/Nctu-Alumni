@@ -17,16 +17,22 @@ export interface Member {
   phone: string;
 }
 
+export interface RoleItem {
+  roleId: string;
+  role: string;
+}
+
 export interface BoardItem {
   memberId: string;
   memberName: string;
   email: string;
   phone: string;
-  title: string;
+  role: string;
+  branch: string;
 }
 
-export interface BoardQueryResponse<T> {
-  items: T[];
+export interface BoardQueryResponse {
+  items: BoardItem[];
   pageItem: {
     pageSize: number;
     pageNumber: number;

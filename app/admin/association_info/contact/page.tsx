@@ -5,7 +5,7 @@ import boardDataJson from '@/app/data/boardData.json';
 
 // Local imports
 import { BoardListFieldKey, BoardDataMap, BoardRegion, BoardRegionKey, Member } from './interface.dto';
-import { aboutMenuItems } from './constants';
+import { aboutMenuItems } from '../constants';
 
 const boardRegionTabs = [
   { key: 'general', label: '總會' },
