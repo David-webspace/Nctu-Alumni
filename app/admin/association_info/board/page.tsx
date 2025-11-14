@@ -139,24 +139,6 @@ const AssociationInfoEditPage = () => {
     });
   };
 
-  const handleBoardMemberChange = (
-    field: BoardListFieldKey,
-    index: number,
-    prop: keyof Member,
-    value: string
-  ) => {
-    setBoardData((prev) => {
-      const updated = { ...prev };
-      const region = { ...updated[activeBoardRegion] };
-      const list = region[field].map((m) => ({ ...m }));
-      const target = { ...list[index], [prop]: value } as Member;
-      list[index] = target;
-      region[field] = list as BoardRegion[typeof field];
-      updated[activeBoardRegion] = region;
-      return updated;
-    });
-  };
-
   const handleAddBoardListItem = (field: BoardListFieldKey) => {
     const newName = newMemberNames[field].trim();
     if (!newName) return;
