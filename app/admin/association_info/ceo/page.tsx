@@ -37,7 +37,7 @@ const createInitialBoardData = (): BoardDataMap => {
     title?: string;
     img?: string;
   };
-  [key: string]: any; // Define other fields explicitly if possible
+  [key: string]: unknown; // Define other fields explicitly if possible
 }>;
 
 const raw = boardDataJson as BoardDataRaw;
@@ -69,7 +69,7 @@ const raw = boardDataJson as BoardDataRaw;
       const values = region[fieldKey];
       if (Array.isArray(values)) {
         // value may be string[] from JSON or Member[] already
-        baseRegion[fieldKey] = values.map((v: any) =>
+        baseRegion[fieldKey] = values.map((v: string | Member) =>
           typeof v === 'string'
             ? { name: v, email: '', phone: '' } as Member
             : {

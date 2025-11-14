@@ -1,4 +1,4 @@
-import { BoardItem, BoardQueryRequest, BoardQueryResponse } from "../admin/association_info/board/interface.dto";
+import { BoardItem, BoardQueryResponse } from "../admin/association_info/board/interface.dto";
 import axiosInstance from "./axiosinstance";
 
 /**
@@ -7,9 +7,8 @@ import axiosInstance from "./axiosinstance";
  * @returns 包含會員列表和分頁資訊的回應物件
  */
 export const queryBoards = async <T = BoardItem>(
-    request: Partial<BoardQueryRequest>
 ): Promise<BoardQueryResponse<T>> => {
-    const requestBody: BoardQueryRequest = {};
+    const requestBody = {};
     const res = await axiosInstance.post('/boards/queryAll', requestBody);
     return res.data;
 }

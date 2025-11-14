@@ -25,8 +25,6 @@ export interface BoardItem {
   title: string;
 }
 
-export interface BoardQueryRequest {}
-
 export interface BoardQueryResponse<T> {
   items: T[];
   pageItem: {
