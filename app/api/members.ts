@@ -1,4 +1,5 @@
-import { MemberItem } from "../components/interface.dto";
+import { MemberItem } from "../admin/membership_management/interface.dto";
+import { ResponseTemplate } from "../components/interface.dto";
 import { MemberQueryRequest, MemberQueryResponse } from "../components/interface.dto.req";
 import axiosInstance from "./axiosinstance";
 
@@ -29,5 +30,19 @@ export const queryMembers = async <T = MemberItem>(
         }
     };
     const res = await axiosInstance.post('/organizers/query', requestBody);
+    return res.data;
+}
+
+/**
+ * 根據會員 ID 和姓名查詢會員
+ * @param memberId - 會員 ID
+ * @param memberName - 會員姓名
+ * @returns 包含會員列表和分頁資訊的回應物件
+ */
+export const queryMemberByIdAndName = async (queryInput: string): Promise<ResponseTemplate<MemberItem>> => {
+    const requestBody = {
+        queryInput: queryInput
+    };
+    const res = await axiosInstance.post('/members/queryByIdAndName', requestBody);
     return res.data;
 }

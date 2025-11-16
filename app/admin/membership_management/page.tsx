@@ -1,9 +1,9 @@
 "use client";
 
-import { MemberItem } from '@/app/components/interface.dto';
 import { queryMembers } from '@/app/api/members';
 import Pagination from '@/app/components/Pagination';
 import React, { useState } from 'react';
+import { MemberItem } from './interface.dto';
 
 // 將 InputField 移到組件外部，避免每次渲染時重新創建
 const InputField = ({ label, id, value, onChange, maxLength }: {

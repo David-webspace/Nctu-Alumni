@@ -29,7 +29,7 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 py-3 hidden md:flex items-center justify-between flex-wrap gap-4">
         {/* Logo / Site Title */}
         <Link href="/" className="flex items-center space-x-6 text-xl font-bold text-black hover:text-blue-900 transition-colors">
-          <Image src="/logo.png" alt="" width={80} height={80} className="w-20" />
+          <Image src="/logo.png" alt="" width={80} height={80} className="w-auto h-auto" />
           <span>NCTU Alumni</span>
         </Link>
         {/* Navigation */}

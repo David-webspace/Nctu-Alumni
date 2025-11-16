@@ -19,17 +19,16 @@ export interface EmployeeItem {
     tel: string;
 }
 
-export interface MemberItem {
-    memberId: string;
-    memberName: string;
-    personalId: string;
-    gender: string;
-    email: string;
-    phone: string;
-    department: string;
-    minor: string;
-    branch: string;
-    role: string;
-    graduatedYear: string;
-    startYear: string;
+
+export interface ResponseTemplate<T> {
+  items: T[];
+}
+
+export interface ResponseTemplateWithPage<T> {
+  items: T[];
+  pageItem: {
+    pageSize: number;
+    pageNumber: number;
+    totalCount: number;
+  };
 }
