@@ -57,8 +57,6 @@ const AssociationInfoEditPage = () => {
   );
   const [boardItems, setboardItems] = useState<BoardItem[]>([]);
   const [roles, setRoles] = useState<RoleItem[]>([]);
-  const [members, setMembers] = useState<MemberItem[]>([]);
-  const [queryInput, setQueryInput] = useState<string>("");
   const [suggestions, setSuggestions] = useState<Record<string, MemberItem[]>>(
     {}
   );
@@ -82,17 +80,6 @@ const AssociationInfoEditPage = () => {
         const rolesArr = rolesTemplate.items;
         setRoles(rolesArr);
         console.log("rolesArray = ", rolesArr);
-      })
-      .catch(() => {
-        // ignore
-      });
-
-    queryMemberByIdAndName(queryInput)
-      .then((res) => {
-        const memberTemplate = res as ResponseTemplate<MemberItem>;
-        const memberArr = memberTemplate.items;
-        setMembers(memberArr);
-        console.log("memberArray = ", memberArr);
       })
       .catch(() => {
         // ignore
@@ -127,7 +114,6 @@ const AssociationInfoEditPage = () => {
 
   const handleNewMemberInputChange = (field: string, value: string) => {
     setNewMemberNames((prev) => ({ ...prev, [field]: value }));
-    setQueryInput(value);
     // debounce per-role searches
     const timers = searchTimersRef.current;
     if (timers[field]) {
@@ -267,7 +253,7 @@ const AssociationInfoEditPage = () => {
                         <div className="flex gap-2 relative">
                           <input
                             type="text"
-                            value={newMemberNames[roleId]}
+                            value={newMemberNames[roleId] ?? ''}
                             onChange={(e) =>
                               handleNewMemberInputChange(roleId, e.target.value)
                             }
