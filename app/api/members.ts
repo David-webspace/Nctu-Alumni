@@ -3,11 +3,6 @@ import { ResponseTemplate } from "../components/interface.dto";
 import { MemberQueryRequest, MemberQueryResponse } from "../components/interface.dto.req";
 import axiosInstance from "./axiosinstance";
 
-/**
- * 查詢會員
- * @param request - 會員查詢條件
- * @returns 包含會員列表和分頁資訊的回應物件
- */
 export const queryMembers = async <T = MemberItem>(
     request: Partial<MemberQueryRequest>
 ): Promise<MemberQueryResponse<T>> => {
@@ -29,16 +24,10 @@ export const queryMembers = async <T = MemberItem>(
             pageSize: 10
         }
     };
-    const res = await axiosInstance.post('/organizers/query', requestBody);
+    const res = await axiosInstance.post('/members/query', requestBody);
     return res.data;
 }
 
-/**
- * 根據會員 ID 和姓名查詢會員
- * @param memberId - 會員 ID
- * @param memberName - 會員姓名
- * @returns 包含會員列表和分頁資訊的回應物件
- */
 export const queryMemberByIdAndName = async (queryInput: string): Promise<ResponseTemplate<MemberItem>> => {
     const requestBody = {
         queryInput: queryInput
