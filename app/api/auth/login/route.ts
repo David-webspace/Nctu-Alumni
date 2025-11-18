@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 // This would typically be stored in a secure environment variable
 const ADMIN_CREDENTIALS = {

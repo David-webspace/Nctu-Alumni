@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import { CgProfile, CgLogOut } from "react-icons/cg";
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
