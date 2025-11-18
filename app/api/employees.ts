@@ -1,5 +1,5 @@
+import { EmployeeQueryRequest, EmployeeQueryResponse } from "../admin/association_info/contact/interface.dto";
 import { EmployeeItem } from "../components/interface.dto";
-import { EmployeeQueryRequest, EmployeeQueryResponse } from "../components/interface.dto.req";
 import axiosInstance from "./axiosinstance";
 
 /**

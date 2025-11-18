@@ -12,28 +12,45 @@ const Header = () => {
   const pathname = usePathname();
 
   useEffect(() => {
+    let isMounted = true;
+    
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/session');
-        if (response.ok) {
+        const response = await fetch('/api/auth/session', {
+          cache: 'no-store',
+          credentials: 'same-origin'
+        });
+        if (isMounted && response.ok) {
           const data = await response.json();
           setIsAdmin(data.isAdmin);
         }
       } catch (error) {
         console.error('Auth check failed:', error);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     checkAuth();
-  }, []);
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, [pathname]);
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      setIsAdmin(false);
-      window.location.href = '/';
+      const response = await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'same-origin'
+      });
+      if (response.ok) {
+        setIsAdmin(false);
+        window.location.href = '/';
+      }
     } catch (error) {
       console.error('Logout failed:', error);
     }

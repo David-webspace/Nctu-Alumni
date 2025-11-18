@@ -1,12 +1,9 @@
-import { MemberItem } from "../admin/membership_management/interface.dto";
+import { MemberItem, MemberQueryRequest, MemberQueryResponse } from "../admin/membership_management/interface.dto";
 import { ResponseTemplate } from "../components/interface.dto";
-import { MemberQueryRequest, MemberQueryResponse } from "../components/interface.dto.req";
 import axiosInstance from "./axiosinstance";
 
-export const queryMembers = async <T = MemberItem>(
-    request: Partial<MemberQueryRequest>
-): Promise<MemberQueryResponse<T>> => {
-    const requestBody: MemberQueryRequest = {
+export const queryMembers = async(request: Partial<MemberQueryRequest>): Promise<MemberQueryResponse<MemberItem>> => {
+    const requestBody = {
         memberId: request.memberId || "",
         memberName: request.memberName || "",
         personalId: request.personalId || "",
@@ -19,9 +16,9 @@ export const queryMembers = async <T = MemberItem>(
         role: request.role || "",
         graduatedYear: request.graduatedYear || "",
         startYear: request.startYear || "",
-        pageItem: request.pageItem || {
-            pageNumber: 1,
-            pageSize: 10
+        pageItem: {
+            pageNumber: request.pageItem?.pageNumber ?? 1,
+            pageSize: request.pageItem?.pageSize ?? 10
         }
     };
     const res = await axiosInstance.post('/members/query', requestBody);

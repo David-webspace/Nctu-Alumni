@@ -23,9 +23,10 @@ export async function POST(request: Request) {
         value: 'authenticated',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax',
         path: '/',
-        maxAge: 60 * 60 * 24 * 7 // 1 week
+        maxAge: 60 * 60 * 24 * 7, // 1 week
+        domain: process.env.NODE_ENV === 'production' ? '.yourdomain.com' : undefined
       });
       
       return response;

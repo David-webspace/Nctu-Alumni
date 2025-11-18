@@ -6,3 +6,9 @@ export const queryBoards = async (): Promise<BoardQueryResponse> => {
     const res = await axiosInstance.post('/boards/queryAll', requestBody);
     return res.data;
 }
+
+export const createBoards = async (): Promise<BoardQueryResponse> => {
+    const requestBody = {};
+    const res = await axiosInstance.post('/boards/queryAll', requestBody);
+    return res.data;
+}

@@ -4,7 +4,7 @@ import { queryNews, removeNews } from '../../api/news';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatISOToDateTime } from '@/app/utils/dateFormatter';
-import { NewsItem } from '@/app/components/interface.dto.req';
+import { NewsItem } from './interface.dto';
 
 const LatestNewsPage = () => {
   const router = useRouter();

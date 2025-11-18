@@ -54,7 +54,7 @@ const MembershipManagementPage = () => {
   const fetchMembers = async (page: number = currentPage) => {
     setLoading(true);
     try {
-      const response = await queryMembers<MemberItem>({
+      const response = await queryMembers({
         memberId: studentId,
         memberName: chineseName,
         personalId: idNumber,
