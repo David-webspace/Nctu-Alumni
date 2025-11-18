@@ -1,8 +1,9 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 const adminPages = [
   { name: '管理主頁', path: '/admin' },
@@ -17,6 +18,32 @@ const adminPages = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, loading } = useAuth();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    
+    // If not loading and user is not admin, redirect to login
+    if (!loading && !user?.isAdmin) {
+      const loginUrl = new URL('/login', window.location.origin);
+      loginUrl.searchParams.set('from', pathname);
+      router.push(loginUrl.toString());
+    }
+  }, [user, loading, pathname, router]);
+
+  // Show loading state or nothing while checking auth
+  if (loading || !isClient || !user?.isAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">驗證中...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">

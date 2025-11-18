@@ -1,12 +1,44 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from "next/link";
 import Image from "next/image";
-import { CgProfile } from "react-icons/cg";
+import { CgProfile, CgLogOut } from "react-icons/cg";
+import { useRouter, usePathname } from 'next/navigation';
 
-import { useState } from "react";
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/session');
+        if (response.ok) {
+          const data = await response.json();
+          setIsAdmin(data.isAdmin);
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      setIsAdmin(false);
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
@@ -72,34 +104,60 @@ const Header = () => {
           </div>
         </nav>
         <div className="flex items-center">
-          {/* Console Button for Admins */}
-          <Link
-            href="/admin"
-            className="ml-6 px-5 py-2 bg-gray-200 text-gray-800 rounded-lg shadow hover:bg-gray-300 hover:ring-2 hover:ring-gray-400 transition-all duration-200 font-bold flex items-center gap-2 border border-gray-300"
-            style={{ minWidth: '120px' }}
-          >
-            頁面管理
-          </Link>
-          {/* Profile Icon & Dropdown */}
-          <div className="relative group ml-6">
-            <button className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-gray-400 focus:outline-none">
-              {/* You can replace this SVG with an Image if you have a user icon */}
-              <CgProfile className="w-10 h-10 text-black" />
-            </button>
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-blue-700 rounded shadow-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto z-50 transition-opacity duration-200">
-              <ul className="divide-y divide-blue-100">
-                <li>
-                  <button className="block w-full text-left px-4 py-3 text-blue-700 font-bold hover:bg-blue-100">登入</button>
-                </li>
-                <li>
-                  <button className="block w-full text-left px-4 py-3 text-blue-700 font-bold hover:bg-blue-100">註冊</button>
-                </li>
-                <li>
-                  <button className="block w-full text-left px-4 py-3 text-gray-400 font-bold cursor-not-allowed bg-gray-100">修改個人資料</button>
-                </li>
-              </ul>
-            </div>
-          </div>
+          {/* Show login button for non-admin users on non-home pages */}
+          {!isAdmin && !isLoading && pathname !== '/' && (
+            <Link
+              href="/login"
+              className="ml-6 px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-all duration-200 font-medium"
+            >
+              管理員登入
+            </Link>
+          )}
+          
+          {/* Admin controls - only show when user is admin */}
+          {isAdmin && (
+            <>
+              <Link
+                href="/admin"
+                className="ml-6 px-5 py-2 bg-gray-200 text-gray-800 rounded-lg shadow hover:bg-gray-300 hover:ring-2 hover:ring-gray-400 transition-all duration-200 font-bold flex items-center gap-2 border border-gray-300"
+                style={{ minWidth: '120px' }}
+              >
+                頁面管理
+              </Link>
+              
+              {/* Admin profile dropdown */}
+              <div className="relative group ml-4">
+                <button 
+                  className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none"
+                  aria-label="管理員選單"
+                >
+                  <CgProfile className="w-6 h-6 text-gray-700" />
+                </button>
+                
+                {/* Dropdown menu */}
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <ul className="py-1">
+                    <li>
+                      <Link 
+                        href="/admin" 
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        管理後台
+                      </Link>
+                    </li>
+                    <li>
+                      <button 
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
+                      >
+                        <CgLogOut className="mr-2" /> 登出
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     {/* Mobile menu */}
@@ -122,11 +180,26 @@ const Header = () => {
                 <li><Link href="/about/voice" className="block py-2 font-bold text-black hover:bg-blue-100">交大友聲</Link></li>
               </ul>
             </details>
-            <Link href="/admin" className="mt-2 py-2 px-4 bg-gray-200 text-gray-800 rounded-lg shadow hover:bg-gray-300 font-bold border border-gray-300">頁面管理</Link>
+            {isAdmin && (
+              <Link href="/admin" className="mt-2 py-2 px-4 bg-gray-200 text-gray-800 rounded-lg shadow hover:bg-gray-300 font-bold border border-gray-300 block text-center">
+                頁面管理
+              </Link>
+            )}
             {/* Profile actions */}
             <div className="mt-2">
-              <button className="block w-full text-left px-4 py-3 text-blue-700 font-bold hover:bg-blue-100">登入</button>
-              <button className="block w-full text-left px-4 py-3 text-blue-700 font-bold hover:bg-blue-100">註冊</button>
+              {!isAdmin ? (
+                <>
+                  <Link href="/login" className="block w-full text-left px-4 py-3 text-blue-700 font-bold hover:bg-blue-100">登入</Link>
+                  <button className="block w-full text-left px-4 py-3 text-gray-400 font-bold cursor-not-allowed bg-gray-100">註冊</button>
+                </>
+              ) : (
+                <button 
+                  onClick={handleLogout}
+                  className="flex items-center w-full text-left px-4 py-3 text-red-600 font-bold hover:bg-red-50"
+                >
+                  <CgLogOut className="mr-2" /> 登出
+                </button>
+              )}
               <button className="block w-full text-left px-4 py-3 text-gray-400 font-bold cursor-not-allowed bg-gray-100">修改個人資料</button>
             </div>
           </nav>
