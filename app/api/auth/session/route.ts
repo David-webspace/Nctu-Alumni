@@ -9,7 +9,7 @@ const ADMIN_CREDENTIALS = {
 
 export async function GET(request: Request) {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const session = cookieStore.get('admin-session')?.value;
     
     if (!session) {
