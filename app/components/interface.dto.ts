@@ -26,3 +26,8 @@ export interface ResponseTemplateWithPage<T> {
     totalCount: number;
   };
 }
+
+export interface StatusResponse {
+    method: string;
+    status: string;
+};

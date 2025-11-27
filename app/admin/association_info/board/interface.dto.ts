@@ -1,5 +1,3 @@
-export type BoardRegionKey = 'general' | 'taipei' | 'hsinchu' | 'taichung' | 'kaohsiung' | 'shanghai';
-
 export type BoardListFieldKey =
   | 'viceChairmen'
   | 'executiveSecratary'
@@ -23,12 +21,14 @@ export interface RoleItem {
 }
 
 export interface BoardItem {
+  boardId: string;
   memberId: string;
   memberName: string;
   email: string;
   phone: string;
   role: string;
   branch: string;
+  branchName: string;
 }
 
 export interface BoardQueryResponse {
@@ -39,18 +39,3 @@ export interface BoardQueryResponse {
     totalCount: number;
   };
 }
-
-export type BoardRegion = {
-  title: string;
-  description: string;
-  chairman: {
-    name: string;
-    title: string;
-    img: string;
-  };
-} & {
-  [K in BoardListFieldKey]: Member[];
-};
-
-export type BoardDataMap = Record<BoardRegionKey, BoardRegion>;
-

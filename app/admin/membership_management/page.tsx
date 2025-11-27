@@ -197,7 +197,7 @@ const MembershipManagementPage = () => {
                   <td className="py-4 px-4 whitespace-nowrap">{member.email}</td>
                   <td className="py-4 px-4 whitespace-nowrap">{member.department}</td>
                   <td className="py-4 px-4 whitespace-nowrap">{member.minor}</td>
-                  <td className="py-4 px-4 whitespace-nowrap">{member.branch}</td>
+                  <td className="py-4 px-4 whitespace-nowrap">{member.branchName}</td>
                   <td className="py-4 px-4 whitespace-nowrap">{member.role}</td>
                   <td className="py-4 px-4 whitespace-nowrap">{member.graduatedYear}</td>
                   <td className="py-4 px-4 whitespace-nowrap">{member.startYear}</td>

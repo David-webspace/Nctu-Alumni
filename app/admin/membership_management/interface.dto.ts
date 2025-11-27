@@ -7,7 +7,8 @@ export interface MemberItem {
     phone: string;
     department: string;
     minor: string;
-    branch: string;
+    branchId: string;
+    branchName: string;
     role: string;
     graduatedYear: string;
     startYear: string;
@@ -40,4 +41,15 @@ export interface MemberQueryResponse<T> {
         pageNumber: number;
         totalCount: number;
     };
+}
+
+export interface BranchItem {
+    branchId: string;
+    branchName: string;
+    description: string | null;
+    president: string | null;
+}
+
+export interface BranchQueryResponse {
+    items: BranchItem[];
 }

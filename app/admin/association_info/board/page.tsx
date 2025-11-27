@@ -3,43 +3,18 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 // Local imports
-import { BoardRegionKey, BoardItem, RoleItem } from "./interface.dto";
+import { BoardItem, RoleItem } from "./interface.dto";
 import { aboutMenuItems } from "../constants";
-import { queryBoards } from "@/app/api/boards";
+import { createBoards, deleteBoard, queryBoards } from "@/app/api/boards";
 import { queryRoles } from "@/app/api/roles";
 import { queryMemberByIdAndName } from "@/app/api/members";
 import { ResponseTemplate } from "@/app/components/interface.dto";
 import { MemberItem } from "../../membership_management/interface.dto";
 import { useRef } from "react";
-
-const boardRegionTabs = [
-  { key: "general", label: "總會" },
-  { key: "taipei", label: "台北分會" },
-  { key: "hsinchu", label: "新竹分會" },
-  { key: "taichung", label: "台中分會" },
-  { key: "kaohsiung", label: "高雄分會" },
-  { key: "shanghai", label: "上海分會" },
-] as const;
+import { queryBranches } from "@/app/api/branches";
 
 // Dynamic roles are fetched from API; render will be based on roles list.
 
-const branchToRegionKey: Record<string, BoardRegionKey | undefined> = {
-  總會: "general",
-  台北分會: "taipei",
-  新竹分會: "hsinchu",
-  台中分會: "taichung",
-  高雄分會: "kaohsiung",
-  上海分會: "shanghai",
-};
-
-const regionKeyToBranchLabel: Record<BoardRegionKey, string> = {
-  general: "總會",
-  taipei: "台北分會",
-  hsinchu: "新竹分會",
-  taichung: "台中分會",
-  kaohsiung: "高雄分會",
-  shanghai: "上海分會",
-};
 
 /**
  * Association Info Edit Page Component
@@ -50,8 +25,7 @@ const AssociationInfoEditPage = () => {
   const item = aboutMenuItems["board"];
 
   // ==================== State Management ====================
-  const [activeBoardRegion, setActiveBoardRegion] =
-    useState<BoardRegionKey>("general");
+  const [activeBoardRegion, setActiveBoardRegion] = useState<string>("");
   const [newMemberNames, setNewMemberNames] = useState<Record<string, string>>(
     {}
   );
@@ -60,11 +34,12 @@ const AssociationInfoEditPage = () => {
   const [suggestions, setSuggestions] = useState<Record<string, MemberItem[]>>(
     {}
   );
+  const [boardRegionTabs, setBoardRegionTabs] = useState<{ key: string; label: string; }[]>([]);
   const searchTimersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>(
     {}
   );
 
-  useEffect(() => {
+  const fetchBoards = () => {
     queryBoards()
       .then((res) => {
         const boardItems = res.items || [];
@@ -73,6 +48,11 @@ const AssociationInfoEditPage = () => {
       .catch(() => {
         // ignore
       });
+  };
+
+  useEffect(() => {
+    fetchBoards();
+
 
     queryRoles()
       .then((res) => {
@@ -84,32 +64,74 @@ const AssociationInfoEditPage = () => {
       .catch(() => {
         // ignore
       });
+
+    const fetchBranches = async () => {
+      try {
+        const branches = await queryBranches();
+
+        // Sort by branchId ascending
+        branches.sort((a, b) => a.branchId.localeCompare(b.branchId));
+
+        const formattedTabs = branches.map(branch => ({
+          key: branch.branchId,
+          label: branch.branchName,
+        }));
+        setBoardRegionTabs(formattedTabs);
+        if (branches.length > 0) {
+          setActiveBoardRegion(branches[0].branchId);
+        }
+      } catch (error) {
+        console.error("Error fetching branches:", error);
+      }
+    };
+
+    fetchBranches();
+
+
   }, []);
 
   // Build grouped structure: by region, then by roleId
-  const groupedByRegionAndRole = useMemo(() => {
-    const acc: Record<BoardRegionKey, Record<string, BoardItem[]>> = {
-      general: {},
-      taipei: {},
-      hsinchu: {},
-      taichung: {},
-      kaohsiung: {},
-      shanghai: {},
-    };
-    const roleNameToId = new Map<string, string>(
-      roles.map((r) => [r.role, r.roleId])
-    );
+    const groupedByRegionAndRole = useMemo(() => {
+    const acc: Record<string, Record<string, BoardItem[]>> = {};
+    const roleNameToId = new Map(roles.map(r => [r.role, r.roleId]));
+
     for (const item of boardItems) {
-      const regionKey = branchToRegionKey[item.branch] ?? "hsinchu";
-      const roleId = roleNameToId.get(item.role) ?? item.role; // fallback to role name
-      if (!acc[regionKey][roleId]) acc[regionKey][roleId] = [];
-      acc[regionKey][roleId].push(item);
+      const branchId = item.branch;
+      if (!branchId) continue;
+
+      const roleId = roleNameToId.get(item.role) ?? item.role; // Fallback to name if no ID found
+
+      if (!acc[branchId]) {
+        acc[branchId] = {};
+      }
+
+      if (!acc[branchId][roleId]) {
+        acc[branchId][roleId] = [];
+      }
+      acc[branchId][roleId].push(item);
     }
     return acc;
   }, [boardItems, roles]);
 
-  const handleBoardRegionChange = (region: BoardRegionKey) => {
-    setActiveBoardRegion(region);
+  const handleBoardRegionChange = (branchId: string) => {
+    setActiveBoardRegion(branchId);
+  };
+
+  const handleDeleteBoard = async (boardId: string) => {
+    if (window.confirm("您確定要刪除這位成員嗎？")) {
+      try {
+        const res = await deleteBoard(boardId);
+        if (res.status === 'SUCCESS') {
+          setboardItems(prevItems => prevItems.filter(item => item.boardId !== boardId));
+          alert("成員已成功刪除");
+        } else {
+          alert(`刪除失敗: ${res.status}`);
+        }
+      } catch (error) {
+        console.error("Error deleting board member:", error);
+        alert("刪除過程中發生錯誤");
+      }
+    }
   };
 
   const handleNewMemberInputChange = (field: string, value: string) => {
@@ -134,17 +156,22 @@ const AssociationInfoEditPage = () => {
     }, 300);
   };
 
-  const handleAddMemberToRole = (roleId: string, member: MemberItem) => {
-    const roleName = roles.find((r) => r.roleId === roleId)?.role ?? roleId;
-    const newBoardItem: BoardItem = {
-      memberId: member.memberId,
-      memberName: member.memberName,
-      email: member.email,
-      phone: member.phone,
-      role: roleName,
-      branch: regionKeyToBranchLabel[activeBoardRegion],
-    };
-    setboardItems((prev) => [...prev, newBoardItem]);
+  const handleAddMemberToRole = async (roleId: string, member: MemberItem) => {
+    try {
+      // Call createBoards API
+      const response = await createBoards(member.memberId, roleId);
+
+      if (response && response.status === 'SUCCESS') {
+        // Refetch the board list to show the new member
+        fetchBoards();
+        alert("成員已成功新增");
+      } else {
+        console.error('Failed to add board member', response);
+        alert(`新增成員失敗: ${response?.status}`);
+      }
+    } catch (error) {
+      console.error('Error adding board member:', error);
+    }
     // clear input and suggestions for this role
     setNewMemberNames((prev) => ({ ...prev, [roleId]: "" }));
     setSuggestions((prev) => ({ ...prev, [roleId]: [] }));
@@ -296,10 +323,7 @@ const AssociationInfoEditPage = () => {
                       </div>
 
                       {(() => {
-                        const members =
-                          groupedByRegionAndRole[activeBoardRegion][roleId] ??
-                          groupedByRegionAndRole[activeBoardRegion][role] ??
-                          [];
+                        const members = groupedByRegionAndRole[activeBoardRegion]?.[roleId] ?? [];
                         return members.length === 0;
                       })() ? (
                         <p className="text-sm text-gray-500 border border-dashed border-gray-300 rounded-md px-4 py-3">
@@ -317,10 +341,16 @@ const AssociationInfoEditPage = () => {
                                   姓名
                                 </th>
                                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  學號
+                                </th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                   Email
                                 </th>
                                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                   電話
+                                </th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  分校
                                 </th>
                                 <th className="px-4 py-2" />
                               </tr>
@@ -335,7 +365,7 @@ const AssociationInfoEditPage = () => {
                                 ] ??
                                 []
                               ).map((member, index) => (
-                                <tr key={`${roleId}-${index}`}>
+                                <tr key={member.boardId}>
                                   <td className="px-4 py-2 text-sm text-gray-500 w-10">
                                     {index + 1}
                                   </td>
@@ -343,15 +373,21 @@ const AssociationInfoEditPage = () => {
                                     {member.memberName}
                                   </td>
                                   <td className="px-4 py-2 text-sm text-gray-900">
+                                    {member.memberId}
+                                  </td>
+                                  <td className="px-4 py-2 text-sm text-gray-900">
                                     {member.email}
                                   </td>
                                   <td className="px-4 py-2 text-sm text-gray-900">
                                     {member.phone}
                                   </td>
+                                  <td className="px-4 py-2 text-sm text-gray-900">
+                                    {member.branchName}
+                                  </td>
                                   <td className="px-4 py-2 text-right">
                                     <button
                                       type="button"
-                                      onClick={() => {}}
+                                      onClick={() => handleDeleteBoard(member.boardId)}
                                       className="px-2 py-1 text-sm text-red-600 hover:text-red-800"
                                     >
                                       刪除
