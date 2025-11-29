@@ -29,11 +29,6 @@ export default function CreateNewsPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // 處理數字型欄位
-  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: Number(e.target.value) });
   };

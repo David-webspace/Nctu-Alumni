@@ -1,4 +1,4 @@
-import { NewsByIdRequest, NewsCreateRequest, NewsItem, NewsQueryRequest, NewsRemoveRequest, NewsUpdateRequest } from "../admin/latest_news/interface.dto";
+import { NewsByIdRequest, NewsCreateRequest, NewsQueryRequest, NewsRemoveRequest, NewsUpdateRequest } from "../admin/latest_news/interface.dto";
 import axiosInstance from "./axiosinstance";
 
 export const getNews = async () => {
