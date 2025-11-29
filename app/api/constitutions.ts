@@ -1,8 +1,8 @@
-import { Article, Chapter, ConstitutionData, ConstitutionResponse } from "../admin/association_info/constitution/interface.dto";
+import { Article, Chapter, ConstitutionRequest, ConstitutionResponse } from "../admin/association_info/constitution/interface.dto";
 import axiosInstance from "./axiosinstance";
 
 // 查詢所有章程資料
-export const queryConsitutions = async (userData: any): Promise<ConstitutionResponse> => {
+export const queryConsitutions = async (userData: ConstitutionRequest): Promise<ConstitutionResponse> => {
     const res = await axiosInstance.post('/constitution/queryConstitutions', userData);
     return res.data;
 };
@@ -34,7 +34,7 @@ export const deleteChapter = async (userData: Chapter) => {
 // ==================== Article APIs ====================
 
 // 更新單一條文
-export const updateArticle = async (userData: any) => {
+export const updateArticle = async (userData: Partial<Article>) => {
     const res = await axiosInstance.post('/constitution/updateArticle', userData);
     return res.data;
 };

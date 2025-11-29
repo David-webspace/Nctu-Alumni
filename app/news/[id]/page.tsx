@@ -5,25 +5,12 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { getNewsById } from "../../api/news";
-
-interface NewsDetail {
-  newsId?: string;
-  title?: string;
-  content?: string;
-  publishDate?: string;
-  expireDate?: string;
-  status?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  authorId?: number;
-  imageUrl?: string;
-  imageAlt?: string;
-}
+import { NewsItem } from "../../admin/latest_news/interface.dto";
 
 export default function NewsDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const [data, setData] = useState<NewsDetail | null>(null);
+  const [data, setData] = useState<NewsItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +26,7 @@ export default function NewsDetailPage() {
         };
         const res = await getNewsById(requestBody as { mwHeader: { requestId: string }; tranRq: { items: { newsId: string } } });
         // 假設回應為 { tranRs: { item: {...} } } 或 { tranRs: { items: {...} } }
-        const detail: NewsDetail = res?.tranRs?.item || res?.tranRs?.items || res?.item || res;
+        const detail: NewsItem = res?.tranRs?.item || res?.tranRs?.items || res?.item || res;
         setData(detail || null);
       } catch (e: unknown) {
         console.error("getNewsById error", e);

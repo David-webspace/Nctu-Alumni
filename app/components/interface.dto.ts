@@ -18,6 +18,21 @@ export interface RequestTemplateWithPage<T> {
   };
 }
 
+export interface MwHeader {
+  requestId: string;
+}
+
+export interface RequestTemplate<T> {
+  mwHeader: MwHeader;
+  tranRq: {
+    items: Partial<T>;
+    pageItem: {
+      pageNumber: number;
+      pageSize: number;
+    };
+  };
+}
+
 export interface ResponseTemplateWithPage<T> {
   items: T[];
   pageItem: {

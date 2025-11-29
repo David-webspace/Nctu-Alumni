@@ -30,6 +30,13 @@ export interface ConstitutionResponse {
   };
 }
 
+export interface ConstitutionRequest {
+  mwHeader: {
+    requestId: string;
+  };
+  tranRq: {};
+}
+
 export type BoardRegionKey = 'general' | 'taipei' | 'hsinchu' | 'taichung' | 'kaohsiung' | 'shanghai';
 
 export type BoardListFieldKey =

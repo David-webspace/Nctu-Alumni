@@ -32,3 +32,8 @@ export const queryMemberByIdAndName = async (queryInput: string): Promise<Respon
     const res = await axiosInstance.post('/members/queryByIdAndName', requestBody);
     return res.data;
 }
+
+export const updateMember = async (memberData: MemberItem): Promise<ResponseTemplate<MemberItem>> => {
+    const res = await axiosInstance.put(`/members/update/${memberData.memberId}`, memberData);
+    return res.data;
+};
