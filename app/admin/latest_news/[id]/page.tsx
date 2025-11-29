@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getNewsById } from "../../../api/news";
-import axiosInstance from "../../../api/axiosinstance";
+import { getNewsById } from "@/app/api/news";
+import { NewsByIdRequest, NewsItem } from "../interface.dto";
+import axiosInstance from "@/app/api/axiosinstance";
 import MDEditor from "@uiw/react-md-editor";
 import Image from "next/image";
 
@@ -21,15 +22,23 @@ export default function EditNewsPage() {
 
   useEffect(() => {
     // 取得單一消息資料
-    getNewsById(id)
+    if (!id || Array.isArray(id)) return;
+
+    const requestBody: NewsByIdRequest = {
+      mwHeader: { requestId: `req-news-${id}` },
+      tranRq: { items: { newsId: id } },
+    };
+
+    getNewsById(requestBody)
       .then(res => {
-        console.log(res);
+        const newsData = res.tranRs.items as NewsItem;
+        console.log(newsData);
         setForm({
-          title: res.title || "",
-          start_date: res.start_date || "",
-          end_date: res.end_date || "",
-          thumbnail: res.thumbnail || "",
-          new_description: res.new_description || "",
+          title: newsData.title || "",
+          start_date: newsData.publishDate || "",
+          end_date: newsData.expireDate || "",
+          thumbnail: newsData.imageUrl || "",
+          new_description: newsData.content || "",
         });
         setLoading(false);
       })
