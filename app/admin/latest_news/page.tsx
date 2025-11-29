@@ -22,7 +22,8 @@ const LatestNewsPage = () => {
       const queryBody = {
         mwHeader: { requestId: `req-${Date.now()}` },
         tranRq: {
-          page: { pageNumber: 1, pageSize: 20, totalCount: 0 },
+          items: {},
+          pageItem: { pageNumber: 1, pageSize: 20 },
         },
       };
       const res = await queryNews(queryBody);
@@ -36,7 +37,8 @@ const LatestNewsPage = () => {
     const requestBody = {
       mwHeader: { requestId: `req-${Date.now()}` },
       tranRq: {
-        page: { pageNumber: 1, pageSize: 20, totalCount: 0 },
+        items: {},
+        pageItem: { pageNumber: 1, pageSize: 20 },
       }
     };
     queryNews(requestBody)
