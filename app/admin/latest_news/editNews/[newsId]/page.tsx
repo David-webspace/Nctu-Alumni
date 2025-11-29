@@ -2,21 +2,20 @@
 import { useRouter, useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { updateNews, getNewsById } from '../../../../api/news';
+import { NewsItem, NewsUpdateRequest } from '../../interface.dto';
 
 export default function EditNewsPage() {
   const router = useRouter();
   const params = useParams();
   const newsId = params.newsId as string | undefined;
   
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<Partial<NewsItem>>({
     newsId: newsId || '',
     title: '',
     content: '',
     publishDate: '',
     expireDate: '',
-    status: '',
-    createdAt: '',
-    updatedAt: '',
+    status: 0,
     authorId: '',
     imageUrl: '',
     imageAlt: '',
@@ -58,17 +57,23 @@ export default function EditNewsPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setForm({ ...form, [e.target.name]: Number(e.target.value) });
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const now = new Date().toISOString();
-      const requestBody = {
+      const requestBody: NewsUpdateRequest = {
         mwHeader: { requestId: `req-${Date.now()}` },
         tranRq: {
           items: {
             ...form,
+            newsId: newsId!,
+            status: Number(form.status),
             updatedAt: now,
-          }
+          } as NewsItem
         }
       };
       await updateNews(requestBody);
@@ -102,7 +107,10 @@ export default function EditNewsPage() {
         </div>
         <div>
           <label className="block font-medium mb-1">狀態</label>
-          <input name="status" value={form.status} onChange={handleChange} className="w-full border px-3 py-2 rounded" />
+          <select name="status" value={form.status} onChange={handleSelectChange} className="w-full border px-3 py-2 rounded">
+            <option value={0}>草稿</option>
+            <option value={1}>發布</option>
+          </select>
         </div>
         <div>
           <label className="block font-medium mb-1">作者ID</label>
