@@ -34,7 +34,7 @@ export interface ConstitutionRequest {
   mwHeader: {
     requestId: string;
   };
-  tranRq: {};
+  tranRq: Record<string, never>;
 }
 
 export type BoardRegionKey = 'general' | 'taipei' | 'hsinchu' | 'taichung' | 'kaohsiung' | 'shanghai';

@@ -1,4 +1,4 @@
-import { NewsByIdRequest, NewsCreateRequest, NewsItem, NewsQueryRequest, NewsRemoveRequest, NewsUpdateRequest } from "../admin/latest_news/interface.dto";
+import { NewsByIdRequest, NewsCreateRequest, NewsItem, NewsRemoveRequest, NewsUpdateRequest } from "../admin/latest_news/interface.dto";
 import { RequestTemplate } from "../components/interface.dto";
 import axiosInstance from "./axiosinstance";
 
