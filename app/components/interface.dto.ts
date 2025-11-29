@@ -25,8 +25,8 @@ export interface MwHeader {
 export interface RequestTemplate<T> {
   mwHeader: MwHeader;
   tranRq: {
-    items: Partial<T>;
-    pageItem: {
+    items: T | T[];
+    pageItem?: {
       pageNumber: number;
       pageSize: number;
     };

@@ -3,23 +3,21 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import { createNews } from '../../../api/news';
+import { NewsCreateRequest, NewsItem } from "../interface.dto";
 import Image from "next/image";
 
 export default function CreateNewsPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<Partial<NewsItem>>({
     title: "",
     content: "",
     publishDate: "",
     expireDate: "",
-    status: "draft",
-    createdAt: "",
-    updatedAt: "",
-    authorId: "",
+    status: 0, // 0 for draft
+    authorId: "1", // Default authorId
     imageUrl: "",
     imageAlt: "",
-    newsId: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -33,7 +31,11 @@ export default function CreateNewsPage() {
 
   // 處理數字型欄位
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value ? Number(e.target.value) : '' });
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setForm({ ...form, [e.target.name]: Number(e.target.value) });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,27 +43,21 @@ export default function CreateNewsPage() {
     try {
       // 組裝 request 格式
       const now = new Date().toISOString();
-      const requestBody = {
+      const requestBody: NewsCreateRequest = {
         mwHeader: {
           requestId: `req-${Date.now()}`,
         },
         tranRq: {
-          page: {
-            pageNumber: 1,
-            pageSize: 10,
-            totalCount: 1,
-          },
-          items: [
-            {
-              ...form,
-              publishDate: form.publishDate || now,
-              expireDate: form.expireDate || '',
-              createdAt: form.createdAt || now,
-              updatedAt: form.updatedAt || now,
-              imageUrl: form.imageUrl || '',
-              newsId: form.newsId || '',
-            },
-          ],
+          items: {
+            title: form.title!,
+            content: form.content!,
+            publishDate: form.publishDate || now,
+            expireDate: form.expireDate!,
+            status: form.status!,
+            authorId: form.authorId!,
+            imageAlt: form.imageAlt!,
+            imageUrl: form.imageUrl,
+          }
         },
       };
       await createNews(requestBody);
@@ -103,20 +99,19 @@ export default function CreateNewsPage() {
         <div className="flex gap-4">
           <div>
             <label className="block font-medium mb-1 text-gray-600">狀態</label>
-            <input name="status" value={form.status} onChange={handleChange} className="w-full border px-3 py-2 rounded text-gray-600" placeholder="draft/published" />
+            <select name="status" value={form.status} onChange={handleSelectChange} className="w-full border px-3 py-2 rounded text-gray-600">
+              <option value={0}>草稿</option>
+              <option value={1}>發布</option>
+            </select>
           </div>
           <div>
             <label className="block font-medium mb-1 text-gray-600">作者ID</label>
-            <input name="authorId" type="number" value={form.authorId} onChange={handleNumberChange} className="w-full border px-3 py-2 rounded text-gray-600" />
+            <input name="authorId" value={form.authorId} onChange={handleChange} className="w-full border px-3 py-2 rounded text-gray-600" />
           </div>
         </div>
         <div>
           <label className="block font-medium mb-1 text-gray-600">圖片描述</label>
           <input name="imageAlt" value={form.imageAlt} onChange={handleChange} className="w-full border px-3 py-2 rounded text-gray-600" />
-        </div>
-        <div>
-          <label className="block font-medium mb-1 text-gray-600">newsId（可留空）</label>
-          <input name="newsId" value={form.newsId} onChange={handleChange} className="w-full border px-3 py-2 rounded text-gray-600" />
         </div>
         <div>
           <label className="block font-medium mb-1 text-gray-600">封面圖片網址</label>
