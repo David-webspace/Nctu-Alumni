@@ -29,6 +29,8 @@ export interface BoardItem {
   role: string;
   branch: string;
   branchName: string;
+  photo?: string;
+  description?: string;
 }
 
 export interface BoardQueryResponse {

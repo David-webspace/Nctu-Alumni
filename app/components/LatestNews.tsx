@@ -3,8 +3,8 @@ import Link from "next/link";
 import { queryNews } from "../api/news";
 import { useEffect, useState } from "react";
 import Image from 'next/image';
-import { NewsItem } from "./interface.dto";
-import { formatDate } from "../utils/dateFormatter";
+import { NewsItem } from "../admin/latest_news/interface.dto";
+import { formatISOToDateTime } from "../utils/dateFormatter";
 
 const LatestNews = () => {
   const [newsList, setNewsList] = useState<NewsItem[]>([]);
@@ -17,10 +17,11 @@ const LatestNews = () => {
         const requestBody = {
           mwHeader: { requestId: `req-${Date.now()}` },
           tranRq: {
-            page: { pageNumber: 1, pageSize: 6, totalCount: 0 },
+            items: {},
+            pageItem: { pageNumber: 1, pageSize: 6 },
           },
         };
-        const res = await queryNews(requestBody as { mwHeader: { requestId: string }; tranRq: { page: { pageNumber: number; pageSize: number; totalCount: number } } });
+        const res = await queryNews(requestBody);
         const items = (res?.tranRs?.items || []) as NewsItem[];
         setNewsList(items);
       } catch (error) {
@@ -75,7 +76,7 @@ const LatestNews = () => {
                     </div>
                     <div className="p-3 sm:p-4 flex-1 flex flex-col">
                       <div className="font-bold text-gray-700 text-base sm:text-lg mb-2 line-clamp-2 group-hover:text-black">{item.title}</div>
-                      <div className="text-xs text-gray-500 mt-auto">{formatDate(item.publishDate)}</div>
+                      <div className="text-xs text-gray-500 mt-auto">{formatISOToDateTime(item.publishDate)}</div>
                     </div>
                   </div>
                 </Link>

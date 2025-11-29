@@ -2,7 +2,7 @@
 
 import { queryMembers, updateMember } from '@/app/api/members';
 import Pagination from '@/app/components/Pagination';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MemberItem } from './interface.dto';
 import EditMemberModal from './EditMemberModal';
 
@@ -97,10 +97,17 @@ const MembershipManagementPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
+  // 確保頁面初始載入時清空資料
+  useEffect(() => {
+    setMembers([]);
+    setTotalCount(0);
+    setCurrentPage(1);
+  }, []);
+
   const fetchMembers = async (page: number = currentPage) => {
     setLoading(true);
     try {
-      const response = await queryMembers({
+      const requestParams = {
         memberId: studentId,
         memberName: chineseName,
         personalId: idNumber,
@@ -116,44 +123,48 @@ const MembershipManagementPage = () => {
         termNumber: termNumber,
         memberType: memberType,
         conditionStatus: conditionStatus,
-        spouseName,
-        birthday,
-        location,
-        nationality,
-        mobilePhone1,
-        mobilePhone2,
-        zipcode,
-        mailingAddress,
-        residentialAddress,
-        expertise,
-        interests,
-        remarks,
-        alumniRemarks,
-        bachelorDegree,
-        masterDegree,
-        doctoralDegree,
-        companyName,
-        industryType,
-        jobTitle,
-        companyPhone,
-        companyFax,
-        companyZipcode,
-        companyAddress,
-        companyEmail,
-        affiliatedUnit,
-        alumniCardNumber,
-        joinDate,
-        expiryDate,
-        newsletterSubscription,
-        paymentRecord,
-        familyApplication,
-        alumniAssociationEmail,
-        role,
+        spouseName: spouseName,
+        birthday: birthday,
+        location: location,
+        nationality: nationality,
+        mobilePhone1: mobilePhone1,
+        mobilePhone2: mobilePhone2,
+        zipcode: zipcode,
+        mailingAddress: mailingAddress,
+        residentialAddress: residentialAddress,
+        expertise: expertise,
+        interests: interests,
+        remarks: remarks,
+        alumniRemarks: alumniRemarks,
+        bachelorDegree: bachelorDegree,
+        masterDegree: masterDegree,
+        doctoralDegree: doctoralDegree,
+        companyName: companyName,
+        industryType: industryType,
+        jobTitle: jobTitle,
+        companyPhone: companyPhone,
+        companyFax: companyFax,
+        companyZipcode: companyZipcode,
+        companyAddress: companyAddress,
+        companyEmail: companyEmail,
+        affiliatedUnit: affiliatedUnit,
+        alumniCardNumber: alumniCardNumber,
+        joinDate: joinDate,
+        expiryDate: expiryDate,
+        newsletterSubscription: newsletterSubscription,
+        paymentRecord: paymentRecord,
+        familyApplication: familyApplication,
+        alumniAssociationEmail: alumniAssociationEmail,
+        role: role,
         pageItem: {
           pageNumber: page,
           pageSize: pageSize
         }
-      });
+      };
+
+      const response = await queryMembers(requestParams);
+      console.log('API Response:', response);
+      console.log('Items count:', response.items.length);
       setMembers(response.items);
       setTotalCount(response.pageItem.totalCount);
       setCurrentPage(page);
@@ -228,6 +239,7 @@ const MembershipManagementPage = () => {
     setMembers([]);
     setTotalCount(0);
     setCurrentPage(1);
+    setLoading(false);
   };
 
   const handleEdit = (member: MemberItem) => {
