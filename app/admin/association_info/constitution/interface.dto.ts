@@ -37,6 +37,13 @@ export interface ConstitutionRequest {
   tranRq: Record<string, never>;
 }
 
+export interface ArticleUpdateRequest {
+  mwHeader: {
+    requestId: string;
+  };
+  tranRq: Partial<Article>;
+}
+
 export type BoardRegionKey = 'general' | 'taipei' | 'hsinchu' | 'taichung' | 'kaohsiung' | 'shanghai';
 
 export type BoardListFieldKey =

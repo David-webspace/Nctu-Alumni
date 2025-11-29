@@ -88,9 +88,10 @@ const item = aboutMenuItems['constitution'];
       const updatePromises = reorderedArticles.map((art, index) => {
         const requestData = {
           mwHeader: {
-            requestId: `cA003-updateArticles`
+            requestId: `cA003-updateArticles-${art.id}`
           },
           tranRq: {
+            id: art.id,
             articleNo: (index + 1).toString(),
             content: art.content
           }
