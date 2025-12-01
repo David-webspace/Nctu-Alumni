@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import { MemberItem, MemberQueryRequest, MemberQueryResponse } from "../admin/membership_management/interface.dto";
 import { ResponseTemplate } from "../components/interface.dto";
 import axiosInstance from "./axiosinstance";
@@ -60,9 +61,9 @@ export const queryMembers = async(request: Partial<MemberQueryRequest>): Promise
     try {
         const res = await axiosInstance.post('/members/query', requestBody);
         return res.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
         // 如果是 404 錯誤（查無資料），返回空結果而不是拋出錯誤
-        if (error.response && error.response.status === 404) {
+        if (error instanceof AxiosError && error.response && error.response.status === 404) {
             return {
                 items: [],
                 pageItem: {

@@ -45,6 +45,7 @@ export default function BoardPage() {
                 processBoards(boardsResponse.items, rolesResponse.items);
 
             } catch (err) {
+                console.error('無法載入資料:', err);
                 setError('無法載入資料');
             } finally {
                 setLoading(false);
