@@ -1,9 +1,10 @@
 "use client";
 
 import { queryMembers, updateMember } from '@/app/api/members';
+import { queryDepartments } from '@/app/api/departments';
 import Pagination from '@/app/components/Pagination';
 import React, { useState, useEffect } from 'react';
-import { MemberItem } from './interface.dto';
+import { MemberItem, DepartmentItem } from './interface.dto';
 import EditMemberModal from './EditMemberModal';
 
 // 將 InputField 移到組件外部，避免每次渲染時重新創建
@@ -92,16 +93,29 @@ const MembershipManagementPage = () => {
 
   // State for search results and loading
   const [members, setMembers] = useState<MemberItem[]>([]);
+  const [departments, setDepartments] = useState<DepartmentItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
-  // 確保頁面初始載入時清空資料
+  // 確保頁面初始載入時清空資料並載入科系選項
   useEffect(() => {
     setMembers([]);
     setTotalCount(0);
     setCurrentPage(1);
+    
+    // 載入科系選項
+    const loadDepartments = async () => {
+      try {
+        const response = await queryDepartments();
+        setDepartments(response.items);
+      } catch (error) {
+        console.error('Failed to load departments:', error);
+      }
+    };
+    
+    loadDepartments();
   }, []);
 
   const fetchMembers = async (page: number = currentPage) => {
@@ -314,7 +328,22 @@ const MembershipManagementPage = () => {
             <div>
               <h3 className="text-lg font-medium text-gray-900 col-span-full">學歷與個人特質</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-8 gap-y-6 text-gray-700 mt-4">
-                <InputField label="科系" id="department" value={department} onChange={(e) => setDepartment(e.target.value)} maxLength={20} />
+                <div className="flex flex-col">
+                  <label htmlFor="department" className="mb-1 text-sm font-medium text-gray-700">科系</label>
+                  <select
+                    id="department"
+                    value={department}
+                    onChange={(e) => setDepartment(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="">請選擇科系</option>
+                    {departments.map((dept) => (
+                      <option key={dept.departmentId} value={dept.departmentId}>
+                        {dept.departmentName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <InputField label="輔系" id="minor" value={minor} onChange={(e) => setMinor(e.target.value)} maxLength={20} />
                 <InputField label="學士學位" id="bachelorDegree" value={bachelorDegree} onChange={(e) => setBachelorDegree(e.target.value)} maxLength={50} />
                 <InputField label="碩士學位" id="masterDegree" value={masterDegree} onChange={(e) => setMasterDegree(e.target.value)} maxLength={50} />
@@ -407,7 +436,7 @@ const MembershipManagementPage = () => {
             ) : members.length === 0 ? (
               <tr>
                 <td colSpan={49} className="text-center py-16 text-gray-500">
-                  尚無資料
+                  查無資料
                 </td>
               </tr>
             ) : (

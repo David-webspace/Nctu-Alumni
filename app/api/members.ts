@@ -56,8 +56,25 @@ export const queryMembers = async(request: Partial<MemberQueryRequest>): Promise
             pageSize: request.pageItem?.pageSize ?? 10
         }
     };
-    const res = await axiosInstance.post('/members/query', requestBody);
-    return res.data;
+    
+    try {
+        const res = await axiosInstance.post('/members/query', requestBody);
+        return res.data;
+    } catch (error: any) {
+        // 如果是 404 錯誤（查無資料），返回空結果而不是拋出錯誤
+        if (error.response && error.response.status === 404) {
+            return {
+                items: [],
+                pageItem: {
+                    pageSize: request.pageItem?.pageSize ?? 10,
+                    pageNumber: request.pageItem?.pageNumber ?? 1,
+                    totalCount: 0
+                }
+            };
+        }
+        // 其他錯誤仍然拋出
+        throw error;
+    }
 }
 
 export const queryMemberByIdAndName = async (queryInput: string): Promise<ResponseTemplate<MemberItem>> => {

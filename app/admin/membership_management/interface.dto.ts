@@ -149,3 +149,8 @@ export interface BranchItem {
 export interface BranchQueryResponse {
     items: BranchItem[];
 }
+
+export interface DepartmentItem {
+    departmentId: string;
+    departmentName: string;
+}

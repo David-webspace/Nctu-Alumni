@@ -26,7 +26,7 @@ axiosInstance.interceptors.request.use(
         return config;
     },
     (error) => {
-        console.error('❌ Request Error:', error);
+        // console.error('❌ Request Error:', error);
         return Promise.reject(error);
     }
 );
@@ -44,12 +44,12 @@ axiosInstance.interceptors.response.use(
     (error) => {
         if (error.response) {
             // 伺服器回應了錯誤狀態碼
-            console.error('❌ API Error Response:', {
-                url: error.config?.url,
-                status: error.response.status,
-                data: error.response.data,
-                headers: error.response.headers
-            });
+            // console.error('❌ API Error Response:', {
+            //     url: error.config?.url,
+            //     status: error.response.status,
+            //     data: error.response.data,
+            //     headers: error.response.headers
+            // });
         } else if (error.request) {
             // 請求已發出但沒有收到回應
             console.error('❌ No Response from Server:', {

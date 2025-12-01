@@ -18,19 +18,8 @@ export interface RequestTemplateWithPage<T> {
   };
 }
 
-export interface MwHeader {
-  requestId: string;
-}
-
 export interface RequestTemplate<T> {
-  mwHeader: MwHeader;
-  tranRq: {
-    items: T | T[];
-    pageItem?: {
-      pageNumber: number;
-      pageSize: number;
-    };
-  };
+  items: T | T[];
 }
 
 export interface ResponseTemplateWithPage<T> {
