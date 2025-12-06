@@ -59,23 +59,23 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
+
     if (name === 'department') {
       // 當選擇系所時，需要同時更新 department 和 departmentId
       const selectedDept = departments.find(dept => dept.departmentId === value);
-      setFormData(prev => prev ? { 
-        ...prev, 
+      setFormData(prev => prev ? {
+        ...prev,
         department: selectedDept?.departmentName || '',
-        departmentId: value 
+        departmentId: value
       } : null);
       console.log('Updated department:', selectedDept?.departmentName, 'departmentId:', value);
     } else if (name === 'minor') {
       // 當選擇輔系時，需要同時更新 minor 和 minorId
       const selectedMinor = departments.find(dept => dept.departmentId === value);
-      setFormData(prev => prev ? { 
-        ...prev, 
+      setFormData(prev => prev ? {
+        ...prev,
         minor: selectedMinor?.departmentName || '',
-        minorId: value 
+        minorId: value
       } : null);
       console.log('Updated minor:', selectedMinor?.departmentName, 'minorId:', value);
     } else {
@@ -96,6 +96,7 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
         }, 2000);
       } catch (error) {
         setSubmitMessage({ type: 'error', text: '更新失敗，請稍後再試。' });
+        console.error('Update failed:', error);
       } finally {
         setIsSubmitting(false);
       }

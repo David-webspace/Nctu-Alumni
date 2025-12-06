@@ -1,4 +1,4 @@
-import { ContactInfo, ContactInfoRequest, ContactInfoResponse } from "../admin/association_info/contact/interface.dto";
+import { ContactInfoRequest, ContactInfoResponse } from "../admin/association_info/contact/interface.dto";
 import { StatusResponse } from "../components/interface.dto";
 import axiosInstance from "./axiosinstance";
 

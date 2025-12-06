@@ -271,11 +271,12 @@ const MembershipManagementPage = () => {
       } else {
         throw new Error(`Update failed with status: ${response.status}`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to update member:', error);
-      if (error.response) {
-        console.error('Error response data:', error.response.data);
-        console.error('Error response status:', error.response.status);
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response: { data: unknown; status: number } };
+        console.error('Error response data:', axiosError.response.data);
+        console.error('Error response status:', axiosError.response.status);
       }
       throw error; // Re-throw to let the modal handle the error display
     }

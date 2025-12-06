@@ -142,18 +142,36 @@ export const updateMember = async (memberData: MemberItem): Promise<StatusRespon
     try {
         const res = await axiosInstance.post(`/members/update`, requestBody);
         return res.data;
-    } catch (error: any) {
-        console.error('API Error Details:', {
-            message: error.message,
-            status: error.response?.status,
-            statusText: error.response?.statusText,
-            data: error.response?.data,
-            config: {
-                url: error.config?.url,
-                method: error.config?.method,
-                data: error.config?.data
-            }
-        });
+    } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'response' in error && 'config' in error) {
+            const axiosError = error as {
+                message: string;
+                response?: {
+                    status: number;
+                    statusText: string;
+                    data: unknown;
+                };
+                config?: {
+                    url: string;
+                    method: string;
+                    data: unknown;
+                };
+            };
+
+            console.error('API Error Details:', {
+                message: axiosError.message,
+                status: axiosError.response?.status,
+                statusText: axiosError.response?.statusText,
+                data: axiosError.response?.data,
+                config: {
+                    url: axiosError.config?.url,
+                    method: axiosError.config?.method,
+                    data: axiosError.config?.data
+                }
+            });
+        } else {
+            console.error('Unknown error:', error);
+        }
         throw error;
     }
 };
