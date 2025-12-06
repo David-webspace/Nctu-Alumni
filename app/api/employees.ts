@@ -38,7 +38,7 @@ export const createEmployee = async (employeeData: Omit<EmployeeItem, 'empId'>):
  * 更新員工
  */
 export const updateEmployee = async (employeeData: EmployeeItem): Promise<StatusResponse> => {
-    const res = await axiosInstance.put(`/employees/update/${employeeData.empId}`, employeeData);
+    const res = await axiosInstance.post(`/employees/update`, employeeData);
     return res.data;
 }
 
@@ -46,6 +46,6 @@ export const updateEmployee = async (employeeData: EmployeeItem): Promise<Status
  * 刪除員工
  */
 export const deleteEmployee = async (empId: string): Promise<StatusResponse> => {
-    const res = await axiosInstance.delete(`/employees/delete/${empId}`);
+    const res = await axiosInstance.post(`/employees/delete`, {empId});
     return res.data;
 }

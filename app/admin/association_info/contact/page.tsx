@@ -5,12 +5,6 @@ import { getEmployees, createEmployee, updateEmployee, deleteEmployee } from '@/
 import { ContactInfo, ContactInfoRequest } from './interface.dto';
 import { EmployeeItem } from '@/app/components/interface.dto';
 
-interface EmployeeFormData {
-  empName: string;
-  title: string;
-  tel: string;
-}
-
 const ContactManagementPage = () => {
   // 聯絡資訊狀態
   const [contactInfo, setContactInfo] = useState<ContactInfo>({
@@ -25,15 +19,16 @@ const ContactManagementPage = () => {
   const [employees, setEmployees] = useState<EmployeeItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [employeeLoading, setEmployeeLoading] = useState(false);
-  
+
   // 表單狀態
   const [isEditingContact, setIsEditingContact] = useState(false);
   const [isAddingEmployee, setIsAddingEmployee] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<EmployeeItem | null>(null);
-  const [employeeForm, setEmployeeForm] = useState<EmployeeFormData>({
+  const [employeeForm, setEmployeeForm] = useState<EmployeeItem>({
     empName: '',
     title: '',
-    tel: ''
+    tel: '',
+    empId: ''
   });
 
   // 載入聯絡資訊
@@ -71,6 +66,7 @@ const ContactManagementPage = () => {
     }
   };
 
+
   useEffect(() => {
     loadContactInfo();
     loadEmployees();
@@ -93,7 +89,7 @@ const ContactManagementPage = () => {
       } else {
         await createContactInfo(contactRequest);
       }
-      
+
       setIsEditingContact(false);
       await loadContactInfo();
       alert('聯絡資訊已更新');
@@ -105,38 +101,91 @@ const ContactManagementPage = () => {
     }
   };
 
-  // 處理員工表單提交
-  const handleEmployeeSubmit = async (e: React.FormEvent) => {
+  // 處理員工表單提交 - 優化 INP 性能
+  const handleEmployeeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      setEmployeeLoading(true);
-      
+
+    // 使用 setTimeout 來避免阻塞 UI
+    setTimeout(() => {
       if (editingEmployee) {
-        // 更新員工
-        const updatedEmployee: EmployeeItem = {
-          ...editingEmployee,
-          empName: employeeForm.empName,
-          title: employeeForm.title,
-          tel: employeeForm.tel
-        };
-        await updateEmployee(updatedEmployee);
-        alert('員工資料已更新');
+        performUpdateEmployee();
       } else {
-        // 新增員工
-        await createEmployee(employeeForm);
-        alert('員工已新增');
+        performCreateEmployee();
       }
-      
-      // 重置表單
-      setEmployeeForm({ empName: '', title: '', tel: '' });
+    }, 0);
+  };
+
+  const performCreateEmployee = async () => {
+    try {
+      // 樂觀更新：立即添加到 UI 並關閉表單
+      const newEmployee: EmployeeItem = {
+        ...employeeForm,
+        empId: `temp_${Date.now()}` // 臨時 ID
+      };
+
+      const originalEmployees = employees;
+      setEmployees(prevEmployees => [...prevEmployees, newEmployee]);
+      setEmployeeForm({ empName: '', title: '', tel: '', empId: '' });
       setIsAddingEmployee(false);
       setEditingEmployee(null);
-      await loadEmployees();
+
+      const response = await createEmployee(employeeForm);
+
+      if (response.status === 'SUCCESS') {
+        // 成功，重新載入以獲取正確的 empId
+        await loadEmployees();
+        console.log('員工已成功新增');
+      } else {
+        // 失敗，恢復原始狀態
+        setEmployees(originalEmployees);
+        setIsAddingEmployee(true);
+        setEmployeeForm(employeeForm);
+        setTimeout(() => alert(`新增失敗: ${response.status}`), 0);
+      }
     } catch (error) {
-      console.error('Failed to save employee:', error);
-      alert('操作失敗');
-    } finally {
-      setEmployeeLoading(false);
+      // 錯誤，恢復原始狀態
+      const originalEmployees = employees;
+      setEmployees(originalEmployees);
+      setIsAddingEmployee(true);
+      console.error('Failed to create employee:', error);
+      setTimeout(() => alert('新增失敗'), 0);
+    }
+  };
+
+  const performUpdateEmployee = async () => {
+    try {
+      // 樂觀更新：立即更新 UI
+      const originalEmployees = employees;
+      setEmployees(prevEmployees => 
+        prevEmployees.map(emp => 
+          emp.empId === employeeForm.empId ? employeeForm : emp
+        )
+      );
+      setEmployeeForm({ empName: '', title: '', tel: '', empId: '' });
+      setIsAddingEmployee(false);
+      setEditingEmployee(null);
+
+      const response = await updateEmployee(employeeForm);
+      
+      if (response.status === 'SUCCESS') {
+        // 成功，不需要做任何事
+        console.log('員工資料已成功更新');
+      } else {
+        // 失敗，恢復原始狀態
+        setEmployees(originalEmployees);
+        setIsAddingEmployee(true);
+        setEditingEmployee(editingEmployee);
+        setEmployeeForm(employeeForm);
+        setTimeout(() => alert(`更新失敗: ${response.status}`), 0);
+      }
+    } catch (error) {
+      // 錯誤，恢復原始狀態
+      const originalEmployees = employees;
+      setEmployees(originalEmployees);
+      setIsAddingEmployee(true);
+      setEditingEmployee(editingEmployee);
+      console.error('Failed to update employee:', error);
+      setTimeout(() => alert('更新失敗'), 0);
     }
   };
 
@@ -146,25 +195,44 @@ const ContactManagementPage = () => {
     setEmployeeForm({
       empName: employee.empName,
       title: employee.title,
-      tel: employee.tel
+      tel: employee.tel,
+      empId: employee.empId
     });
     setIsAddingEmployee(true);
   };
 
-  // 刪除員工
-  const handleDeleteEmployee = async (empId: string) => {
-    if (confirm('確定要刪除此員工嗎？')) {
-      try {
-        setEmployeeLoading(true);
-        await deleteEmployee(empId);
-        alert('員工已刪除');
-        await loadEmployees();
-      } catch (error) {
-        console.error('Failed to delete employee:', error);
-        alert('刪除失敗');
-      } finally {
-        setEmployeeLoading(false);
+  // 刪除員工 - 優化 INP 性能
+  const handleDeleteEmployee = (empId: string) => {
+    // 使用 setTimeout 來避免阻塞 UI
+    setTimeout(() => {
+      if (confirm('確定要刪除此員工嗎？')) {
+        performDeleteEmployee(empId);
       }
+    }, 0);
+  };
+
+  const performDeleteEmployee = async (empId: string) => {
+    try {
+      // 樂觀更新：立即從 UI 中移除員工
+      const originalEmployees = employees;
+      setEmployees(prevEmployees => prevEmployees.filter(emp => emp.empId !== empId));
+
+      const response = await deleteEmployee(empId);
+
+      if (response.status === 'SUCCESS') {
+        // 成功，不需要做任何事
+        console.log('員工已成功刪除');
+      } else {
+        // 失敗，恢復原始狀態
+        setEmployees(originalEmployees);
+        setTimeout(() => alert(`刪除失敗: ${response.status}`), 0);
+      }
+    } catch (error) {
+      // 錯誤，恢復原始狀態
+      const originalEmployees = employees;
+      setEmployees(originalEmployees);
+      console.error('Failed to delete employee:', error);
+      setTimeout(() => alert('刪除失敗'), 0);
     }
   };
 
@@ -261,7 +329,7 @@ const ContactManagementPage = () => {
             onClick={() => {
               setIsAddingEmployee(true);
               setEditingEmployee(null);
-              setEmployeeForm({ empName: '', title: '', tel: '' });
+              setEmployeeForm({ empName: '', title: '', tel: '', empId: '' });
             }}
             className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
           >
@@ -320,7 +388,7 @@ const ContactManagementPage = () => {
                 onClick={() => {
                   setIsAddingEmployee(false);
                   setEditingEmployee(null);
-                  setEmployeeForm({ empName: '', title: '', tel: '' });
+                  setEmployeeForm({ empName: '', title: '', tel: '', empId: '' });
                 }}
                 className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
               >
@@ -356,16 +424,16 @@ const ContactManagementPage = () => {
                       <td className="px-4 py-2 border-b border-gray-100">{employee.title}</td>
                       <td className="px-4 py-2 border-b border-gray-100">{employee.tel}</td>
                       <td className="px-4 py-2 border-b border-gray-100">
-                        <div className="flex space-x-2">
+                        <div className="flex gap-2">
                           <button
                             onClick={() => handleEditEmployee(employee)}
-                            className="px-3 py-1 bg-yellow-600 text-white text-sm rounded hover:bg-yellow-700"
+                            className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
                           >
                             編輯
                           </button>
                           <button
                             onClick={() => handleDeleteEmployee(employee.empId)}
-                            className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                            className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm"
                           >
                             刪除
                           </button>
