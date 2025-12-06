@@ -117,20 +117,37 @@ const AssociationInfoEditPage = () => {
     setActiveBoardRegion(branchId);
   };
 
-  const handleDeleteBoard = async (boardId: string) => {
-    if (window.confirm("您確定要刪除這位成員嗎？")) {
-      try {
-        const res = await deleteBoard(boardId);
-        if (res.status === 'SUCCESS') {
-          setboardItems(prevItems => prevItems.filter(item => item.boardId !== boardId));
-          alert("成員已成功刪除");
-        } else {
-          alert(`刪除失敗: ${res.status}`);
-        }
-      } catch (error) {
-        console.error("Error deleting board member:", error);
-        alert("刪除過程中發生錯誤");
+  const handleDeleteBoard = (boardId: string) => {
+    // 使用 setTimeout 來避免阻塞 UI
+    setTimeout(() => {
+      if (window.confirm("您確定要刪除這位成員嗎？")) {
+        performDelete(boardId);
       }
+    }, 0);
+  };
+
+  const performDelete = async (boardId: string) => {
+    try {
+      // 立即更新 UI（樂觀更新）
+      const originalItems = boardItems;
+      setboardItems(prevItems => prevItems.filter(item => item.boardId !== boardId));
+      
+      const res = await deleteBoard(boardId);
+      
+      if (res.status === 'SUCCESS') {
+        // 成功，不需要做任何事
+        console.log('成員已成功刪除');
+      } else {
+        // 失敗，恢復狀態
+        setboardItems(originalItems);
+        setTimeout(() => alert(`刪除失敗: ${res.status}`), 0);
+      }
+    } catch (error) {
+      // 錯誤，恢復狀態
+      const originalItems = boardItems;
+      setboardItems(originalItems);
+      console.error('Error deleting board member:', error);
+      setTimeout(() => alert('刪除過程中發生錯誤'), 0);
     }
   };
 

@@ -428,7 +428,7 @@ const MembershipManagementPage = () => {
         <table className="min-w-full bg-white">
           <thead className="bg-gray-50">
             <tr>
-              {['姓名', '學號', '身分證號', '性別', '電話', 'Email', '系所', '輔系', '分會', '角色', '畢業年份', '入學年份', '職稱', '屆別', '配偶姓名', '生日', '居住地', '國籍', '會員狀況', '行動電話1', '行動電話2', '郵遞區號', '通訊地址', '戶籍地址', '專業領域', '興趣', '備註', '校友會備註', '學士學位', '碩士學位', '博士學位', '公司名稱', '產業類別', '職務', '公司電話', '公司傳真', '公司郵遞區號', '公司地址', '公司Email', '會員類型', '附屬單位', '校友證號', '入會日期', '有效日期', '訂閱電子報', '繳費紀錄', '家庭應用', '校友會Email', '動作'].map(header => (
+              {['姓名', '學號', '身分證號', '性別', '電話', 'Email', '系所', '輔系', '分會', '畢業年份', '入學年份', '職稱', '屆別', '配偶姓名', '生日', '居住地', '國籍', '會員狀況', '行動電話1', '行動電話2', '郵遞區號', '通訊地址', '戶籍地址', '專業領域', '興趣', '備註', '校友會備註', '學士學位', '碩士學位', '博士學位', '公司名稱', '產業類別', '職務', '公司電話', '公司傳真', '公司郵遞區號', '公司地址', '公司Email', '會員類型', '附屬單位', '校友證號', '入會日期', '有效日期', '訂閱電子報', '繳費紀錄', '家庭應用', '校友會Email', '動作'].map(header => (
                 <th key={header} className={`py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap ${
                   header === '動作' ? 'sticky right-0 bg-gray-50 border-l border-gray-200 z-10' : ''
                 }`}>{header}</th>
@@ -460,7 +460,7 @@ const MembershipManagementPage = () => {
                   <td className="py-4 px-4 whitespace-nowrap">{member.department}</td>
                   <td className="py-4 px-4 whitespace-nowrap">{member.minor}</td>
                   <td className="py-4 px-4 whitespace-nowrap">{member.branchName}</td>
-                  <td className="py-4 px-4 whitespace-nowrap">{member.role}</td>
+                  {/* <td className="py-4 px-4 whitespace-nowrap">{member.role}</td> */}
                   <td className="py-4 px-4 whitespace-nowrap">{member.graduatedYear}</td>
                   <td className="py-4 px-4 whitespace-nowrap">{member.startYear}</td>
                   <td className="py-4 px-4 whitespace-nowrap">{member.title}</td>

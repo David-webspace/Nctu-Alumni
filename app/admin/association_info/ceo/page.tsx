@@ -158,13 +158,16 @@ const AssociationInfoEditPage = () => {
   };
 
   const handleRemoveBoardListItem = (field: BoardListFieldKey, index: number) => {
-    setBoardData((prev) => {
-      const updated = { ...prev };
-      const region = { ...updated[activeBoardRegion] };
-      region[field] = region[field].filter((_, idx) => idx !== index);
-      updated[activeBoardRegion] = region;
-      return updated;
-    });
+    // 使用 setTimeout 來避免阻塞 UI
+    setTimeout(() => {
+      setBoardData((prev) => {
+        const updated = { ...prev };
+        const region = { ...updated[activeBoardRegion] };
+        region[field] = region[field].filter((_, idx) => idx !== index);
+        updated[activeBoardRegion] = region;
+        return updated;
+      });
+    }, 0);
   };
 
   const handleNewMemberInputChange = (field: BoardListFieldKey, value: string) => {
