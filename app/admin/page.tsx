@@ -52,7 +52,7 @@ const DashboardCard = ({
   title: string;
   description: string;
   link: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
 }) => (
   <a href={link} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 block pointer">
     <div className="flex items-center justify-between">

@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { queryBoards } from '@/app/api/boards';
 import { queryBranches } from '@/app/api/branches';
 import { queryRoles } from '@/app/api/roles';
@@ -55,14 +56,7 @@ export default function BoardPage() {
         fetchData();
     }, []);
 
-    // 當選中的分校改變時，即時過濾資料（不需要重新請求 API）
-    useEffect(() => {
-        if (allBoards.length > 0 && roles.length > 0) {
-            processBoards(allBoards, roles);
-        }
-    }, [selectedBranch, allBoards, roles]);
-
-    const processBoards = (boardItems: BoardItem[], availableRoles: RoleItem[]) => {
+    const processBoards = useCallback((boardItems: BoardItem[], availableRoles: RoleItem[]) => {
         setFiltering(true);
 
         // 使用 setTimeout 來確保 UI 能夠響應，但實際上處理很快
@@ -99,7 +93,14 @@ export default function BoardPage() {
             setRoleGroups(result);
             setFiltering(false);
         }, 0);
-    };
+    }, [selectedBranch]);
+
+    // 當選中的分校改變時，即時過濾資料（不需要重新請求 API）
+    useEffect(() => {
+        if (allBoards.length > 0 && roles.length > 0) {
+            processBoards(allBoards, roles);
+        }
+    }, [selectedBranch, allBoards, roles, processBoards]);
 
     if (loading) {
         return <div className="text-center py-10">載入中...</div>;
@@ -177,9 +178,11 @@ export default function BoardPage() {
                                                     {/* 照片 */}
                                                     <div className="flex-shrink-0">
                                                         {member.photo ? (
-                                                            <img 
-                                                                src={member.photo} 
+                                                            <Image
+                                                                src={member.photo}
                                                                 alt={member.name}
+                                                                width={128}
+                                                                height={128}
                                                                 className="w-32 h-32 rounded-full object-cover border-4 border-blue-200 shadow-lg"
                                                             />
                                                         ) : (
