@@ -35,7 +35,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <Header />
-          <main className="flex-grow">{children}</main>
+          <main className="flex-grow pb-8">{children}</main>
           <Footer />
         </AuthProvider>
       </body>

@@ -2,8 +2,10 @@ import { DepartmentItem } from "../admin/membership_management/interface.dto";
 import { ResponseTemplate, StatusResponse } from "../components/interface.dto";
 import axiosInstance from "./axiosinstance";
 
-export const queryDepartments = async (): Promise<ResponseTemplate<DepartmentItem>> => {
-    const requestBody = {};
+export const queryDepartments = async (departmentId: string): Promise<ResponseTemplate<DepartmentItem>> => {
+    const requestBody = {
+        departmentId: departmentId,
+    };
     const res = await axiosInstance.post('/departments/queryAll', requestBody);
     return res.data;
 }

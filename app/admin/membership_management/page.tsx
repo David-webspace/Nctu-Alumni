@@ -104,17 +104,17 @@ const MembershipManagementPage = () => {
     setMembers([]);
     setTotalCount(0);
     setCurrentPage(1);
-    
+
     // 載入科系選項
     const loadDepartments = async () => {
       try {
-        const response = await queryDepartments();
+        const response = await queryDepartments("");
         setDepartments(response.items);
       } catch (error) {
         console.error('Failed to load departments:', error);
       }
     };
-    
+
     loadDepartments();
   }, []);
 
@@ -263,13 +263,21 @@ const MembershipManagementPage = () => {
 
   const handleSave = async (updatedMember: MemberItem) => {
     try {
-      await updateMember(updatedMember);
-      setIsEditModalOpen(false);
-      setEditingMember(null);
-      fetchMembers(currentPage); // Refresh the list
-    } catch (error) {
+      const response = await updateMember(updatedMember);
+      if (response.status === 'SUCCESS') {
+        setIsEditModalOpen(false);
+        setEditingMember(null);
+        fetchMembers(currentPage); // Refresh the list
+      } else {
+        throw new Error(`Update failed with status: ${response.status}`);
+      }
+    } catch (error: any) {
       console.error('Failed to update member:', error);
-      // Optionally, show an error message to the user
+      if (error.response) {
+        console.error('Error response data:', error.response.data);
+        console.error('Error response status:', error.response.status);
+      }
+      throw error; // Re-throw to let the modal handle the error display
     }
   };
 

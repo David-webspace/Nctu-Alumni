@@ -1,35 +1,29 @@
-export type BoardRegionKey = 'general' | 'taipei' | 'hsinchu' | 'taichung' | 'kaohsiung' | 'shanghai';
-
-export type BoardListFieldKey =
-  | 'viceChairmen'
-  | 'executiveSecratary'
-  | 'executiveDirectors'
-  | 'directors'
-  | 'altDirectors'
-  | 'convener'
-  | 'executiveSupervisors'
-  | 'supervisors'
-  | 'altSupervisors';
-
-export interface Member {
-  name: string;
-  email: string;
+// Contact Info interfaces
+export interface ContactInfo {
+  id?: string;
+  workingHours: string;
   phone: string;
+  address: string;
+  email: string;
+  generalPhone: string; // 總機號碼
 }
 
-export type BoardRegion = {
-  title: string;
-  description: string;
-  chairman: {
-    name: string;
-    title: string;
-    img: string;
-  };
-} & {
-  [K in BoardListFieldKey]: Member[];
-};
+export interface ContactInfoRequest {
+  workingHours: string;
+  phone: string;
+  address: string;
+  email: string;
+  generalPhone: string;
+}
 
-export type BoardDataMap = Record<BoardRegionKey, BoardRegion>;
+export interface ContactInfoResponse {
+  id: string;
+  workingHours: string;
+  phone: string;
+  address: string;
+  email: string;
+  generalPhone: string;
+}
 
 // Employee related interfaces
 export interface EmployeeQueryRequest {

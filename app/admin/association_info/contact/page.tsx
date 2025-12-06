@@ -1,356 +1,386 @@
 "use client";
-import React, { useState } from 'react';
-import Link from 'next/link';
-import boardDataJson from '@/app/data/boardData.json';
+import React, { useState, useEffect } from 'react';
+import { getContactInfo, updateContactInfo, createContactInfo } from '@/app/api/contact';
+import { getEmployees, createEmployee, updateEmployee, deleteEmployee } from '@/app/api/employees';
+import { ContactInfo, ContactInfoRequest } from './interface.dto';
+import { EmployeeItem } from '@/app/components/interface.dto';
 
-// Local imports
-import { BoardListFieldKey, BoardDataMap, BoardRegion, BoardRegionKey, Member } from './interface.dto';
-import { aboutMenuItems } from '../constants';
+interface EmployeeFormData {
+  empName: string;
+  title: string;
+  tel: string;
+}
 
-const boardRegionTabs = [
-  { key: 'general', label: '總會' },
-  { key: 'taipei', label: '台北分會' },
-  { key: 'hsinchu', label: '新竹分會' },
-  { key: 'taichung', label: '台中分會' },
-  { key: 'kaohsiung', label: '高雄分會' },
-  { key: 'shanghai', label: '上海分會' },
-] as const;
-
-const boardListFieldConfigs: { key: BoardListFieldKey; label: string }[] = [
-  { key: 'viceChairmen', label: '副理事長' },
-  { key: 'executiveSecratary', label: '常務秘書' },
-  { key: 'executiveDirectors', label: '常務理事' },
-  { key: 'directors', label: '理事' },
-  { key: 'altDirectors', label: '候補理事' },
-  { key: 'convener', label: '監事召集人' },
-  { key: 'executiveSupervisors', label: '常務監事' },
-  { key: 'supervisors', label: '監事' },
-  { key: 'altSupervisors', label: '候補監事' },
-];
-
-const createInitialBoardData = (): BoardDataMap => {
-  type BoardDataRaw = Record<string, {
-  title?: string;
-  description?: string;
-  chairman?: {
-    name?: string;
-    title?: string;
-    img?: string;
-  };
-  [key: string]: unknown; // Define other fields explicitly if possible
-}>;
-
-const raw = boardDataJson as BoardDataRaw;
-
-
-  return boardRegionTabs.reduce((acc, { key }) => {
-    const region = raw[key] ?? {};
-
-    const baseRegion: BoardRegion = {
-      title: region.title ?? '',
-      description: region.description ?? '',
-      chairman: {
-        name: region.chairman?.name ?? '',
-        title: region.chairman?.title ?? '',
-        img: region.chairman?.img ?? '',
-      },
-      viceChairmen: [],
-      executiveSecratary: [],
-      executiveDirectors: [],
-      directors: [],
-      altDirectors: [],
-      convener: [],
-      executiveSupervisors: [],
-      supervisors: [],
-      altSupervisors: [],
-    };
-
-    boardListFieldConfigs.forEach(({ key: fieldKey }) => {
-      const values = region[fieldKey];
-      if (Array.isArray(values)) {
-        // value may be string[] from JSON or Member[] already
-        baseRegion[fieldKey] = values.map((v: string | Member) =>
-          typeof v === 'string'
-            ? { name: v, email: '', phone: '' } as Member
-            : {
-                name: v?.name ?? '',
-                email: v?.email ?? '',
-                phone: v?.phone ?? '',
-              } as Member
-        );
-      } else {
-        baseRegion[fieldKey] = [];
-      }
-    });
-
-    acc[key] = baseRegion;
-    return acc;
-  }, {} as BoardDataMap);
-};
-
-
-/**
- * Association Info Edit Page Component
- * Manages the editing interface for association information pages
- */
-const AssociationInfoEditPage = () => {
-  // ==================== Config ====================
-  const item = aboutMenuItems['board'];
-
-  // ==================== State Management ====================
-  const [boardData, setBoardData] = useState<BoardDataMap>(createInitialBoardData());
-  const [activeBoardRegion, setActiveBoardRegion] = useState<BoardRegionKey>('general');
-  const [newMemberNames, setNewMemberNames] = useState<Record<BoardListFieldKey, string>>({
-    viceChairmen: '',
-    executiveSecratary: '',
-    executiveDirectors: '',
-    directors: '',
-    altDirectors: '',
-    convener: '',
-    executiveSupervisors: '',
-    supervisors: '',
-    altSupervisors: '',
+const ContactManagementPage = () => {
+  // 聯絡資訊狀態
+  const [contactInfo, setContactInfo] = useState<ContactInfo>({
+    workingHours: '',
+    phone: '',
+    address: '',
+    email: '',
+    generalPhone: ''
   });
 
-  const handleBoardRegionChange = (region: BoardRegionKey) => {
-    setActiveBoardRegion(region);
+  // 員工管理狀態
+  const [employees, setEmployees] = useState<EmployeeItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [employeeLoading, setEmployeeLoading] = useState(false);
+  
+  // 表單狀態
+  const [isEditingContact, setIsEditingContact] = useState(false);
+  const [isAddingEmployee, setIsAddingEmployee] = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState<EmployeeItem | null>(null);
+  const [employeeForm, setEmployeeForm] = useState<EmployeeFormData>({
+    empName: '',
+    title: '',
+    tel: ''
+  });
+
+  // 載入聯絡資訊
+  const loadContactInfo = async () => {
+    try {
+      setLoading(true);
+      const response = await getContactInfo();
+      setContactInfo(response);
+    } catch (error) {
+      console.error('Failed to load contact info:', error);
+      // 如果沒有聯絡資訊，使用預設值
+      setContactInfo({
+        workingHours: '週一～週五 上午9:00~下午6:00',
+        phone: '03-5734558',
+        address: '新竹市大學路1001號（交大校友會）辦公室位置：交大浩然圖書館地下一樓',
+        email: 'alumni@nctuaa.org.tw',
+        generalPhone: '03-5712121'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleBoardBasicInfoChange = (
-    field: 'title' | 'description' | 'chairman.name' | 'chairman.title' | 'chairman.img',
-    value: string
-  ) => {
-    setBoardData((prev) => {
-      const updated = { ...prev };
-      const region = { ...updated[activeBoardRegion] };
+  // 載入員工資料
+  const loadEmployees = async () => {
+    try {
+      setEmployeeLoading(true);
+      const response = await getEmployees<EmployeeItem>("", 1, 100);
+      setEmployees(response.items);
+    } catch (error) {
+      console.error('Failed to load employees:', error);
+      setEmployees([]);
+    } finally {
+      setEmployeeLoading(false);
+    }
+  };
 
-      if (field === 'title' || field === 'description') {
-        region[field] = value;
+  useEffect(() => {
+    loadContactInfo();
+    loadEmployees();
+  }, []);
+
+  // 保存聯絡資訊
+  const handleSaveContactInfo = async () => {
+    try {
+      setLoading(true);
+      const contactRequest: ContactInfoRequest = {
+        workingHours: contactInfo.workingHours,
+        phone: contactInfo.phone,
+        address: contactInfo.address,
+        email: contactInfo.email,
+        generalPhone: contactInfo.generalPhone
+      };
+
+      if (contactInfo.id) {
+        await updateContactInfo(contactRequest);
       } else {
-        const [, key] = field.split('.') as ['chairman', 'name' | 'title' | 'img'];
-        region.chairman = {
-          ...region.chairman,
-          [key]: value,
-        };
+        await createContactInfo(contactRequest);
       }
+      
+      setIsEditingContact(false);
+      await loadContactInfo();
+      alert('聯絡資訊已更新');
+    } catch (error) {
+      console.error('Failed to save contact info:', error);
+      alert('更新失敗');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      updated[activeBoardRegion] = region;
-      return updated;
+  // 處理員工表單提交
+  const handleEmployeeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setEmployeeLoading(true);
+      
+      if (editingEmployee) {
+        // 更新員工
+        const updatedEmployee: EmployeeItem = {
+          ...editingEmployee,
+          empName: employeeForm.empName,
+          title: employeeForm.title,
+          tel: employeeForm.tel
+        };
+        await updateEmployee(updatedEmployee);
+        alert('員工資料已更新');
+      } else {
+        // 新增員工
+        await createEmployee(employeeForm);
+        alert('員工已新增');
+      }
+      
+      // 重置表單
+      setEmployeeForm({ empName: '', title: '', tel: '' });
+      setIsAddingEmployee(false);
+      setEditingEmployee(null);
+      await loadEmployees();
+    } catch (error) {
+      console.error('Failed to save employee:', error);
+      alert('操作失敗');
+    } finally {
+      setEmployeeLoading(false);
+    }
+  };
+
+  // 編輯員工
+  const handleEditEmployee = (employee: EmployeeItem) => {
+    setEditingEmployee(employee);
+    setEmployeeForm({
+      empName: employee.empName,
+      title: employee.title,
+      tel: employee.tel
     });
+    setIsAddingEmployee(true);
   };
 
-  const handleAddBoardListItem = (field: BoardListFieldKey) => {
-    const newName = newMemberNames[field].trim();
-    if (!newName) return;
-
-    setBoardData((prev) => {
-      const updated = { ...prev };
-      const region = { ...updated[activeBoardRegion] };
-      region[field] = [
-        ...region[field],
-        { name: newName, email: '', phone: '' } as Member,
-      ];
-      updated[activeBoardRegion] = region;
-      return updated;
-    });
-
-    setNewMemberNames((prev) => ({ ...prev, [field]: '' }));
+  // 刪除員工
+  const handleDeleteEmployee = async (empId: string) => {
+    if (confirm('確定要刪除此員工嗎？')) {
+      try {
+        setEmployeeLoading(true);
+        await deleteEmployee(empId);
+        alert('員工已刪除');
+        await loadEmployees();
+      } catch (error) {
+        console.error('Failed to delete employee:', error);
+        alert('刪除失敗');
+      } finally {
+        setEmployeeLoading(false);
+      }
+    }
   };
 
-  const handleRemoveBoardListItem = (field: BoardListFieldKey, index: number) => {
-    setBoardData((prev) => {
-      const updated = { ...prev };
-      const region = { ...updated[activeBoardRegion] };
-      region[field] = region[field].filter((_, idx) => idx !== index);
-      updated[activeBoardRegion] = region;
-      return updated;
-    });
-  };
-
-  const handleNewMemberInputChange = (field: BoardListFieldKey, value: string) => {
-    setNewMemberNames((prev) => ({ ...prev, [field]: value }));
-  };
-  // ==================== Main Render (Board/Member only) ====================
-  const regionData = boardData[activeBoardRegion];
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <Link
-          href="/admin/association_info"
-          className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium mb-4"
-        >
-          ← 返回關於校友會管理
-        </Link>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{item.title}</h1>
-        <p className="text-gray-600">{item.description}</p>
+    <div className="max-w-6xl mx-auto p-6 space-y-8">
+      <h1 className="text-3xl font-bold text-gray-800">聯絡資訊管理</h1>
+
+      {/* 聯絡資訊區塊 */}
+      <div className="bg-white rounded-lg shadow-md p-6 text-gray-900">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-gray-800">基本聯絡資訊</h2>
+          <button
+            onClick={() => setIsEditingContact(!isEditingContact)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            disabled={loading}
+          >
+            {isEditingContact ? '取消編輯' : '編輯資訊'}
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="text-center py-4">載入中...</div>
+        ) : isEditingContact ? (
+          <div className="space-y-4 text-gray-700">
+            <div>
+              <label className="block text-sm font-medium mb-1">上班時間</label>
+              <input
+                type="text"
+                value={contactInfo.workingHours}
+                onChange={(e) => setContactInfo({...contactInfo, workingHours: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">電話</label>
+              <input
+                type="text"
+                value={contactInfo.phone}
+                onChange={(e) => setContactInfo({...contactInfo, phone: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">總機號碼</label>
+              <input
+                type="text"
+                value={contactInfo.generalPhone}
+                onChange={(e) => setContactInfo({...contactInfo, generalPhone: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">地址</label>
+              <textarea
+                value={contactInfo.address}
+                onChange={(e) => setContactInfo({...contactInfo, address: e.target.value})}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">電子郵件</label>
+              <input
+                type="email"
+                value={contactInfo.email}
+                onChange={(e) => setContactInfo({...contactInfo, email: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <button
+              onClick={handleSaveContactInfo}
+              className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              disabled={loading}
+            >
+              {loading ? '保存中...' : '保存'}
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <p><span className="font-medium">上班時間:</span> {contactInfo.workingHours}</p>
+            <p><span className="font-medium">電話:</span> {contactInfo.phone}</p>
+            <p><span className="font-medium">總機:</span> {contactInfo.generalPhone}</p>
+            <p><span className="font-medium">地址:</span> {contactInfo.address}</p>
+            <p><span className="font-medium">電子郵件:</span> {contactInfo.email}</p>
+          </div>
+        )}
       </div>
 
-      <div className="bg-white rounded-lg shadow-md border border-gray-200">
-        <div className="flex flex-col lg:flex-row">
-          <aside className="lg:w-60 border-b lg:border-b-0 lg:border-r border-gray-200">
-            <nav className="flex lg:flex-col flex-row overflow-x-auto">
-              {boardRegionTabs.map(({ key, label }) => (
-                <button
-                  key={key}
-                  onClick={() => handleBoardRegionChange(key)}
-                  className={`flex-1 lg:flex-none px-4 py-3 text-left border-b lg:border-b-0 lg:border-l-4 transition-colors ${
-                    activeBoardRegion === key
-                      ? 'bg-blue-50 border-blue-600 text-blue-700 font-semibold'
-                      : 'border-transparent text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </nav>
-          </aside>
+      {/* 員工管理區塊 */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-gray-800">員工分機管理</h2>
+          <button
+            onClick={() => {
+              setIsAddingEmployee(true);
+              setEditingEmployee(null);
+              setEmployeeForm({ empName: '', title: '', tel: '' });
+            }}
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+          >
+            新增員工
+          </button>
+        </div>
 
-          <section className="flex-1 p-6">
-            <div className="grid gap-6">
+        {/* 新增/編輯員工表單 */}
+        {isAddingEmployee && (
+          <form onSubmit={handleEmployeeSubmit} className="mb-6 p-4 bg-gray-50 rounded-md">
+            <h3 className="text-lg font-medium mb-4">
+              {editingEmployee ? '編輯員工' : '新增員工'}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-900">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">基礎資訊</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">分會名稱</label>
-                    <input
-                      type="text"
-                      value={regionData.title}
-                      onChange={(e) => handleBoardBasicInfoChange('title', e.target.value)}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">理事長職稱</label>
-                    <input
-                      type="text"
-                      value={regionData.chairman.title}
-                      onChange={(e) => handleBoardBasicInfoChange('chairman.title', e.target.value)}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">分會描述</label>
-                    <textarea
-                      value={regionData.description}
-                      onChange={(e) => handleBoardBasicInfoChange('description', e.target.value)}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px]"
-                    />
-                  </div>
-                  <div className="grid gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">理事長姓名</label>
-                      <input
-                        type="text"
-                        value={regionData.chairman.name}
-                        onChange={(e) => handleBoardBasicInfoChange('chairman.name', e.target.value)}
-                        className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">理事長照片 URL</label>
-                      <input
-                        type="text"
-                        value={regionData.chairman.img}
-                        onChange={(e) => handleBoardBasicInfoChange('chairman.img', e.target.value)}
-                        placeholder="例如：https://example.com/chairman.jpg"
-                        className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                      <p className="mt-1 text-xs text-gray-500">請提供公開圖片 URL，後續可改為上傳檔案</p>
-                    </div>
-                  </div>
-                </div>
+                <label className="block text-sm font-medium mb-1">姓名</label>
+                <input
+                  type="text"
+                  value={employeeForm.empName}
+                  onChange={(e) => setEmployeeForm({...employeeForm, empName: e.target.value})}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
-
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">成員名單</h2>
-                <div className="space-y-8">
-                  {boardListFieldConfigs.map(({ key, label }) => (
-                    <div key={key}>
-                      <div className="flex items-center justify-between mb-3">
-                        <label className="text-sm font-medium text-gray-700">{label}</label>
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            value={newMemberNames[key]}
-                            onChange={(e) => handleNewMemberInputChange(key, e.target.value)}
-                            placeholder={`新增${label}姓名`}
-                            className="w-48 rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
+                <label className="block text-sm font-medium mb-1">職位</label>
+                <input
+                  type="text"
+                  value={employeeForm.title}
+                  onChange={(e) => setEmployeeForm({...employeeForm, title: e.target.value})}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">分機號碼</label>
+                <input
+                  type="text"
+                  value={employeeForm.tel}
+                  onChange={(e) => setEmployeeForm({...employeeForm, tel: e.target.value})}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="mt-4 flex space-x-2">
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                disabled={employeeLoading}
+              >
+                {employeeLoading ? '保存中...' : '保存'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAddingEmployee(false);
+                  setEditingEmployee(null);
+                  setEmployeeForm({ empName: '', title: '', tel: '' });
+                }}
+                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+              >
+                取消
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* 員工列表 */}
+        {employeeLoading ? (
+          <div className="text-center py-4">載入中...</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full border border-gray-200 rounded-md text-gray-900">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="text-left px-4 py-2 border-b border-gray-200">姓名</th>
+                  <th className="text-left px-4 py-2 border-b border-gray-200">職位</th>
+                  <th className="text-left px-4 py-2 border-b border-gray-200">分機號碼</th>
+                  <th className="text-left px-4 py-2 border-b border-gray-200">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {employees.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="text-center py-4 text-gray-400">暫無員工資料</td>
+                  </tr>
+                ) : (
+                  employees.map((employee) => (
+                    <tr key={employee.empId} className="hover:bg-gray-50">
+                      <td className="px-4 py-2 border-b border-gray-100">{employee.empName}</td>
+                      <td className="px-4 py-2 border-b border-gray-100">{employee.title}</td>
+                      <td className="px-4 py-2 border-b border-gray-100">{employee.tel}</td>
+                      <td className="px-4 py-2 border-b border-gray-100">
+                        <div className="flex space-x-2">
                           <button
-                            type="button"
-                            onClick={() => handleAddBoardListItem(key)}
-                            className="px-3 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            onClick={() => handleEditEmployee(employee)}
+                            className="px-3 py-1 bg-yellow-600 text-white text-sm rounded hover:bg-yellow-700"
                           >
-                            新增
+                            編輯
+                          </button>
+                          <button
+                            onClick={() => handleDeleteEmployee(employee.empId)}
+                            className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                          >
+                            刪除
                           </button>
                         </div>
-                      </div>
-
-                      {regionData[key].length === 0 ? (
-                        <p className="text-sm text-gray-500 border border-dashed border-gray-300 rounded-md px-4 py-3">
-                          尚未有資料，請新增成員。
-                        </p>
-                      ) : (
-                        <div className="overflow-x-auto border border-gray-200 rounded-md">
-                          <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                              <tr>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">姓名</th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">電話</th>
-                                <th className="px-4 py-2" />
-                              </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                              {regionData[key].map((member, index) => (
-                                <tr key={`${key}-${index}`}>
-                                  <td className="px-4 py-2 text-sm text-gray-500 w-10">{index + 1}</td>
-                                  <td className="px-4 py-2 text-sm text-gray-900">{member.name}</td>
-                                  <td className="px-4 py-2 text-sm text-gray-900">{member.email}</td>
-                                  <td className="px-4 py-2 text-sm text-gray-900">{member.phone}</td>
-                                  <td className="px-4 py-2 text-right">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleRemoveBoardListItem(key, index)}
-                                      className="px-2 py-1 text-sm text-red-600 hover:text-red-800"
-                                    >
-                                      刪除
-                                    </button>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 flex gap-4">
-              <button
-                type="button"
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                onClick={() => alert('保存功能開發中')}
-              >
-                保存變更
-              </button>
-              <button
-                type="button"
-                className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
-                onClick={() => alert('即將支援預覽功能')}
-              >
-                預覽前台
-              </button>
-            </div>
-          </section>
-        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default AssociationInfoEditPage;
+export default ContactManagementPage;

@@ -6,9 +6,12 @@ export interface MemberItem {
     phone: string;
     email: string;
     department: string;
+    departmentId: string;
     minor: string;
+    minorId: string;
     branchId: string;
     branchName: string;
+    roleId: string;
     role: string;
     graduatedYear: string;
     startYear: string;

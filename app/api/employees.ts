@@ -1,5 +1,6 @@
 import { EmployeeQueryRequest, EmployeeQueryResponse } from "../admin/association_info/contact/interface.dto";
 import { EmployeeItem } from "../components/interface.dto";
+import { StatusResponse } from "../components/interface.dto";
 import axiosInstance from "./axiosinstance";
 
 /**
@@ -22,5 +23,29 @@ export const getEmployees = async <T = EmployeeItem>(
         }
     };
     const res = await axiosInstance.post('/employees/fuzzyQuery', requestBody);
+    return res.data;
+}
+
+/**
+ * 創建員工
+ */
+export const createEmployee = async (employeeData: Omit<EmployeeItem, 'empId'>): Promise<StatusResponse> => {
+    const res = await axiosInstance.post('/employees/create', employeeData);
+    return res.data;
+}
+
+/**
+ * 更新員工
+ */
+export const updateEmployee = async (employeeData: EmployeeItem): Promise<StatusResponse> => {
+    const res = await axiosInstance.put(`/employees/update/${employeeData.empId}`, employeeData);
+    return res.data;
+}
+
+/**
+ * 刪除員工
+ */
+export const deleteEmployee = async (empId: string): Promise<StatusResponse> => {
+    const res = await axiosInstance.delete(`/employees/delete/${empId}`);
     return res.data;
 }
