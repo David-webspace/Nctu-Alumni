@@ -34,4 +34,5 @@ export interface ResponseTemplateWithPage<T> {
 export interface StatusResponse {
     method: string;
     status: string;
+    message: string;
 };

@@ -63,6 +63,25 @@ export interface Member {
   phone: string;
 }
 
+export interface Article {
+  id: string;
+  articleNo: string;
+  articleLabel: string;
+  content: string;
+}
+
+export interface Chapter {
+  id: string;
+  chapterNo: string;
+  title: string;
+  slug: string;
+}
+
+export interface ConstitutionData {
+  chapter: Chapter;
+  article: Article[];
+}
+
 export type BoardRegion = {
   title: string;
   description: string;

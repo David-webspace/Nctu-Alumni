@@ -3,25 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import GoToTopButton from '@/app/hooks/GoToTopButton';
 import { queryConsitutions } from '@/app/api/constitutions';
-
-interface Article {
-  id: string;
-  articleNo: string;
-  articleLabel: string;
-  content: string;
-}
-
-interface Chapter {
-  id: string;
-  chapterNo: string;
-  title: string;
-  slug: string;
-}
-
-interface ConstitutionData {
-  chapter: Chapter;
-  article: Article[];
-}
+import { ConstitutionData } from '@/app/admin/association_info/constitution/interface.dto';
 
 interface ConstitutionResponse {
   mwHeader: {

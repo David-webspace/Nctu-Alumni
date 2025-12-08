@@ -8,7 +8,7 @@ import { aboutMenuItems } from "../constants";
 import { createBoards, deleteBoard, queryBoards } from "@/app/api/boards";
 import { queryRoles } from "@/app/api/roles";
 import { queryMemberByIdAndName } from "@/app/api/members";
-import { ResponseTemplate } from "@/app/components/interface.dto";
+import { ResponseTemplate, StatusResponse } from "@/app/components/interface.dto";
 import { MemberItem } from "../../membership_management/interface.dto";
 import { useRef } from "react";
 import { queryBranches } from "@/app/api/branches";
@@ -131,9 +131,9 @@ const AssociationInfoEditPage = () => {
       // 立即更新 UI（樂觀更新）
       const originalItems = boardItems;
       setboardItems(prevItems => prevItems.filter(item => item.boardId !== boardId));
-      
+
       const res = await deleteBoard(boardId);
-      
+
       if (res.status === 'SUCCESS') {
         // 成功，不需要做任何事
         console.log('成員已成功刪除');
@@ -182,12 +182,25 @@ const AssociationInfoEditPage = () => {
         // Refetch the board list to show the new member
         fetchBoards();
         alert("成員已成功新增");
+      } else if (response && response.status === 'FAILED') {
+        // Handle backend error with specific message
+        const errorMessage = response.message || '新增成員失敗';
+        console.error('Failed to add board member', response);
+        alert(`新增失敗: ${errorMessage}`);
       } else {
         console.error('Failed to add board member', response);
-        alert(`新增成員失敗: ${response?.status}`);
+        alert(`新增成員失敗: ${response?.status || '未知錯誤'}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding board member:', error);
+      // Check if error response has message
+      if (error?.response?.data?.message) {
+        alert(`新增失敗: ${error.response.data.message}`);
+      } else if (error?.message) {
+        alert(`新增失敗: ${error.message}`);
+      } else {
+        alert('新增成員時發生錯誤，請稍後再試');
+      }
     }
     // clear input and suggestions for this role
     setNewMemberNames((prev) => ({ ...prev, [roleId]: "" }));

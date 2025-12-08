@@ -15,6 +15,15 @@ export interface Member {
   phone: string;
 }
 
+export interface MemberInfo {
+    name: string;
+    photo?: string;
+    email?: string;
+    description?: string;
+    phone?: string;
+}
+
+
 export interface RoleItem {
   roleId: string;
   role: string;
@@ -31,13 +40,4 @@ export interface BoardItem {
   branchName: string;
   photo?: string;
   description?: string;
-}
-
-export interface BoardQueryResponse {
-  items: BoardItem[];
-  pageItem: {
-    pageSize: number;
-    pageNumber: number;
-    totalCount: number;
-  };
 }
