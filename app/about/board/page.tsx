@@ -24,35 +24,6 @@ export default function BoardPage() {
     const [filtering, setFiltering] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-
-                // 同時獲取分校、職位和理監事資料
-                const [branchesResponse, rolesResponse, boardsResponse] = await Promise.all([
-                    queryBranches(),
-                    queryRoles(),
-                    queryBoards()
-                ]);
-
-                branchesResponse.sort((a, b) => a.branchId.localeCompare(b.branchId));
-                setBranches(branchesResponse);
-                setRoles(rolesResponse.items);
-                setAllBoards(boardsResponse.items);
-                processBoards(boardsResponse.items, rolesResponse.items);
-
-            } catch (err) {
-                console.error('無法載入資料:', err);
-                setError('無法載入資料');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
-
     const processBoards = useCallback((boardItems: BoardItem[], availableRoles: RoleItem[]) => {
         setFiltering(true);
 
@@ -95,6 +66,35 @@ export default function BoardPage() {
             setFiltering(false);
         }, 0);
     }, [selectedBranch]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+
+                // 同時獲取分校、職位和理監事資料
+                const [branchesResponse, rolesResponse, boardsResponse] = await Promise.all([
+                    queryBranches(),
+                    queryRoles(),
+                    queryBoards()
+                ]);
+
+                branchesResponse.sort((a, b) => a.branchId.localeCompare(b.branchId));
+                setBranches(branchesResponse);
+                setRoles(rolesResponse.items);
+                setAllBoards(boardsResponse.items);
+                processBoards(boardsResponse.items, rolesResponse.items);
+
+            } catch (err) {
+                console.error('無法載入資料:', err);
+                setError('無法載入資料');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [processBoards]);
 
     // 當選中的分校改變時，即時過濾資料（不需要重新請求 API）
     useEffect(() => {

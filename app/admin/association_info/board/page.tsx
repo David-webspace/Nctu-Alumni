@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 // Local imports
@@ -8,7 +8,7 @@ import { aboutMenuItems } from "../constants";
 import { createBoards, deleteBoard, queryBoards } from "@/app/api/boards";
 import { queryRoles } from "@/app/api/roles";
 import { queryMemberByIdAndName } from "@/app/api/members";
-import { ResponseTemplate, StatusResponse } from "@/app/components/interface.dto";
+import { ResponseTemplate } from "@/app/components/interface.dto";
 import { MemberItem } from "../../membership_management/interface.dto";
 import { useRef } from "react";
 import { queryBranches } from "@/app/api/branches";
@@ -191,13 +191,19 @@ const AssociationInfoEditPage = () => {
         console.error('Failed to add board member', response);
         alert(`新增成員失敗: ${response?.status || '未知錯誤'}`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error adding board member:', error);
       // Check if error response has message
-      if (error?.response?.data?.message) {
-        alert(`新增失敗: ${error.response.data.message}`);
-      } else if (error?.message) {
-        alert(`新增失敗: ${error.message}`);
+      if (error && typeof error === 'object' && 'response' in error) {
+        const errorWithResponse = error as { response?: { data?: { message?: string } } };
+        if (errorWithResponse.response?.data?.message) {
+          alert(`新增失敗: ${errorWithResponse.response.data.message}`);
+        } else {
+          alert('新增成員時發生錯誤，請稍後再試');
+        }
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        const errorWithMessage = error as { message: string };
+        alert(`新增失敗: ${errorWithMessage.message}`);
       } else {
         alert('新增成員時發生錯誤，請稍後再試');
       }
