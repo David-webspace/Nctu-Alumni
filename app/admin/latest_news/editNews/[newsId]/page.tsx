@@ -2,7 +2,9 @@
 import { useRouter, useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { updateNews, getNewsById } from '../../../../api/news';
+import { uploadImage } from '../../../../api/imageUpload';
 import { NewsItem, NewsUpdateRequest } from '../../interface.dto';
+import SimpleImageUpload from '../../../../components/SimpleImageUpload';
 
 export default function EditNewsPage() {
   const router = useRouter();
@@ -20,6 +22,7 @@ export default function EditNewsPage() {
     imageUrl: '',
     imageAlt: '',
   });
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -64,6 +67,19 @@ export default function EditNewsPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      let imageUrl = form.imageUrl;
+      
+      // 如果有選擇圖片，先上傳到 S3
+      if (selectedImage) {
+        const uploadResponse = await uploadImage(selectedImage);
+        if (uploadResponse.success && uploadResponse.imageUrl) {
+          imageUrl = uploadResponse.imageUrl;
+        } else {
+          setError(uploadResponse.message || "圖片上傳失敗");
+          return;
+        }
+      }
+      
       const now = new Date().toISOString();
       const requestBody: NewsUpdateRequest = {
         mwHeader: { requestId: `req-${Date.now()}` },
@@ -73,6 +89,7 @@ export default function EditNewsPage() {
             newsId: newsId!,
             status: Number(form.status),
             updatedAt: now,
+            imageUrl: imageUrl,
           } as NewsItem
         }
       };
@@ -117,13 +134,17 @@ export default function EditNewsPage() {
           <input name="authorId" value={form.authorId} onChange={handleChange} className="w-full border px-3 py-2 rounded" />
         </div>
         <div>
-          <label className="block font-medium mb-1">圖片網址</label>
-          <input name="imageUrl" value={form.imageUrl} onChange={handleChange} className="w-full border px-3 py-2 rounded" />
-        </div>
-        <div>
           <label className="block font-medium mb-1">圖片描述</label>
           <input name="imageAlt" value={form.imageAlt} onChange={handleChange} className="w-full border px-3 py-2 rounded" />
         </div>
+        <SimpleImageUpload
+          currentImageUrl={form.imageUrl}
+          onImageSelected={(file: File | null) => setSelectedImage(file)}
+          onImageRemoved={() => {
+            setSelectedImage(null);
+            setForm(f => ({ ...f, imageUrl: "" }));
+          }}
+        />
         <div className="flex gap-4 mt-6">
           <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">儲存</button>
           <button type="button" className="border px-6 py-2 rounded" onClick={() => router.back()}>取消</button>

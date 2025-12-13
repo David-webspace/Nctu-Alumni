@@ -3,12 +3,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import { createNews } from '../../../api/news';
+import { uploadImage } from '../../../api/imageUpload';
 import { NewsCreateRequest, NewsItem } from "../interface.dto";
-import Image from "next/image";
+import SimpleImageUpload from '../../../components/SimpleImageUpload';
 
 export default function CreateNewsPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [form, setForm] = useState<Partial<NewsItem>>({
     title: "",
     content: "",
@@ -36,6 +38,19 @@ export default function CreateNewsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      let imageUrl = form.imageUrl;
+      
+      // 如果有選擇圖片，先上傳到 S3
+      if (selectedImage) {
+        const uploadResponse = await uploadImage(selectedImage);
+        if (uploadResponse.success && uploadResponse.imageUrl) {
+          imageUrl = uploadResponse.imageUrl;
+        } else {
+          setError(uploadResponse.message || "圖片上傳失敗");
+          return;
+        }
+      }
+      
       // 組裝 request 格式
       const now = new Date().toISOString();
       const requestBody: NewsCreateRequest = {
@@ -51,7 +66,7 @@ export default function CreateNewsPage() {
             status: form.status!,
             authorId: form.authorId!,
             imageAlt: form.imageAlt!,
-            imageUrl: form.imageUrl,
+            imageUrl: imageUrl,
           }
         },
       };
@@ -108,43 +123,14 @@ export default function CreateNewsPage() {
           <label className="block font-medium mb-1 text-gray-600">圖片描述</label>
           <input name="imageAlt" value={form.imageAlt} onChange={handleChange} className="w-full border px-3 py-2 rounded text-gray-600" />
         </div>
-        <div>
-          <label className="block font-medium mb-1 text-gray-600">封面圖片網址</label>
-          <input
-            name="imageUrl"
-            value={form.imageUrl}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded text-gray-600 mb-2"
-            placeholder="請輸入圖片網址"
-          />
-          <label className="block font-medium mb-1 text-gray-600">或直接上傳圖片</label>
-          <input
-            type="file"
-            accept="image/png, image/jpeg"
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
-              const reader = new FileReader();
-              reader.onload = async (ev) => {
-                setForm(f => ({ ...f, imageUrl: ev.target?.result as string }));
-              };
-              reader.readAsDataURL(file);
-            }}
-            className="mt-1"
-          />
-          {form.imageUrl && (
-            <div className="mt-2">
-              <p>預覽圖</p>
-              <Image
-                src={form.imageUrl}
-                alt={form.imageAlt || "預覽圖"}
-                width={400}
-                height={300}
-                className="max-h-40 rounded border"
-              />
-            </div>
-          )}
-        </div>
+        <SimpleImageUpload
+          currentImageUrl={form.imageUrl}
+          onImageSelected={(file: File | null) => setSelectedImage(file)}
+          onImageRemoved={() => {
+            setSelectedImage(null);
+            setForm(f => ({ ...f, imageUrl: "" }));
+          }}
+        />
         <div className="flex gap-4 mt-6">
           <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">新增</button>
           <button type="button" className="border px-6 py-2 rounded" onClick={() => router.back()}>取消</button>

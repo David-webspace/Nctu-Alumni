@@ -27,6 +27,7 @@ export const updateNews = async (userData: NewsUpdateRequest) => {
     return res.data;
 };
 
+
 export const removeNews = async (userData: NewsRemoveRequest) => {
     const res = await axiosInstance.post('/news/remove', userData );
     return res.data;
