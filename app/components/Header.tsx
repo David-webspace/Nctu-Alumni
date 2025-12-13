@@ -83,7 +83,7 @@ const Header = () => {
         {/* Navigation */}
         <nav className="flex flex-wrap items-center gap-2 md:gap-6">
           <Link href="/" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">首頁</Link>
-          <Link href="/#latest-news" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">最新消息</Link>
+          <Link href="/news" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">最新消息</Link>
           <Link href="/#activity-calendar" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">活動行事曆</Link>
           {/* <Link href="/#plan-and-donation" className="text-gray-700 hover:text-blue-700 font-medium transition-colors">計畫與捐贈</Link> */}
           {/* Dropdown for 關於校友會 */}

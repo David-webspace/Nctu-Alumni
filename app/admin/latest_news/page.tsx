@@ -1,5 +1,4 @@
 "use client";
-import React from 'react';
 import { queryNews, removeNews } from '../../api/news';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -20,14 +19,11 @@ const LatestNewsPage = () => {
       await removeNews(requestBody);
       // 重新查詢最新列表
       const queryBody = {
-        mwHeader: { requestId: `req-${Date.now()}` },
-        tranRq: {
           items: {},
           pageItem: { pageNumber: 1, pageSize: 20 },
-        },
       };
       const res = await queryNews(queryBody);
-      setNewsData(res.tranRs?.items || []);
+      setNewsData(res.items || []);
     } catch {
       alert('刪除失敗');
     }
@@ -35,17 +31,14 @@ const LatestNewsPage = () => {
 
   useEffect(() => {
     const requestBody = {
-      mwHeader: { requestId: `req-${Date.now()}` },
-      tranRq: {
         items: {},
         pageItem: { pageNumber: 1, pageSize: 20 },
-      }
     };
     queryNews(requestBody)
       .then(res => {
         console.log('查詢回傳：', res);
-        setNewsData(res.tranRs?.items || []);
-        console.log('newsData', res.tranRs?.items);
+        setNewsData(res.items || []);
+        console.log('newsData', res.items);
       })
       .catch((err) => {
         console.error(err);

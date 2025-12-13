@@ -4,8 +4,9 @@ import { useState } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import { createNews } from '../../../api/news';
 import { uploadImage } from '../../../api/imageUpload';
-import { NewsCreateRequest, NewsItem } from "../interface.dto";
+import { NewsItem } from "../interface.dto";
 import SimpleImageUpload from '../../../components/SimpleImageUpload';
+import { RequestTemplate } from "@/app/components/interface.dto";
 
 export default function CreateNewsPage() {
   const router = useRouter();
@@ -39,7 +40,7 @@ export default function CreateNewsPage() {
     e.preventDefault();
     try {
       let imageUrl = form.imageUrl;
-      
+
       // 如果有選擇圖片，先上傳到 S3
       if (selectedImage) {
         const uploadResponse = await uploadImage(selectedImage);
@@ -50,25 +51,25 @@ export default function CreateNewsPage() {
           return;
         }
       }
-      
+
       // 組裝 request 格式
       const now = new Date().toISOString();
-      const requestBody: NewsCreateRequest = {
-        mwHeader: {
-          requestId: `req-${Date.now()}`,
-        },
-        tranRq: {
-          items: {
-            title: form.title!,
-            content: form.content!,
-            publishDate: form.publishDate || now,
-            expireDate: form.expireDate!,
-            status: form.status!,
-            authorId: form.authorId!,
-            imageAlt: form.imageAlt!,
-            imageUrl: imageUrl,
+      const requestBody: RequestTemplate<NewsItem> = {
+          items: [
+            {
+              newsId: "",
+              title: form.title!,
+              content: form.content!,
+              publishDate: form.publishDate || now,
+              expireDate: form.expireDate!,
+              status: form.status!,
+              createdAt: now,
+              updatedAt: now,
+              authorId: form.authorId!,
+              imageAlt: form.imageAlt!,
+              imageUrl: imageUrl,
           }
-        },
+        ]
       };
       await createNews(requestBody);
       router.push("/admin/latest_news");

@@ -24,14 +24,11 @@ export interface NewsByIdRequest {
 }
 
 export interface NewsQueryRequest {
-  mwHeader: MwHeader;
-  tranRq: {
     items: Partial<NewsItem>;
     pageItem: {
       pageNumber: number;
       pageSize: number;
     };
-  };
 }
 
 export interface NewsCreateRequest {
