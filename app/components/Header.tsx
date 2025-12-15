@@ -99,6 +99,9 @@ const Header = () => {
                 <li>
                   <Link href="/about/constitution" className="block px-4 py-3 hover:bg-blue-100 font-bold text-black">組織章程與架構</Link>
                 </li>
+                <li>
+                  <Link href="https://forms.gle/8QC2cLV2KFFDcgUb8" target="_blank" className="block px-4 py-3 hover:bg-blue-100 font-bold text-black">加入校友會</Link>
+                </li>
                 {/* <li>
                   <Link href="/about/ceo" className="block px-4 py-3 hover:bg-blue-100 font-bold text-black">理事長的話</Link>
                 </li> */}
@@ -129,7 +132,7 @@ const Header = () => {
               管理員登入
             </Link>
           )}
-          
+
           {/* Admin controls - only show when user is admin */}
           {isAdmin && (
             <>
@@ -140,7 +143,7 @@ const Header = () => {
               >
                 頁面管理
               </Link>
-              
+
               {/* Admin profile dropdown */}
               <div className="relative group ml-4">
                 <button 
@@ -149,7 +152,7 @@ const Header = () => {
                 >
                   <CgProfile className="w-6 h-6 text-gray-700" />
                 </button>
-                
+
                 {/* Dropdown menu */}
                 <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                   <ul className="py-1">
@@ -189,6 +192,7 @@ const Header = () => {
               <summary className="cursor-pointer text-gray-700 hover:text-blue-700 font-medium">關於校友會</summary>
               <ul className="ml-4 mt-2 border-l border-blue-200 pl-2">
                 <li><Link href="/about/constitution" className="block py-2 font-bold text-black hover:bg-blue-100">組織章程與架構</Link></li>
+                <li><Link href="https://forms.gle/8QC2cLV2KFFDcgUb8" className="block py-2 font-bold text-black hover:bg-blue-100">加入校友會</Link></li>
                 {/* <li><Link href="/about/ceo" className="block py-2 font-bold text-black hover:bg-blue-100">理事長的話</Link></li> */}
                 <li><Link href="/about/contact" className="block py-2 font-bold text-black hover:bg-blue-100">相關聯絡訊息</Link></li>
                 <li><Link href="/about/board" className="block py-2 font-bold text-black hover:bg-blue-100">理監事名單</Link></li>
