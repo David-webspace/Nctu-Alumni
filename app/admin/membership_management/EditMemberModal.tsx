@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { MemberItem, DepartmentItem } from './interface.dto';
+import { MemberItem, DepartmentItem, BranchItem } from './interface.dto';
 import { queryDepartments } from '@/app/api/departments';
+import { queryBranches } from '@/app/api/branches';
 
 interface EditMemberModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [departments, setDepartments] = useState<DepartmentItem[]>([]);
+  const [branches, setBranches] = useState<BranchItem[]>([]);
 
   useEffect(() => {
     console.log('Received member data:', member);
@@ -24,10 +26,12 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
       console.log('Birthday field:', member.birthday, typeof member.birthday);
       console.log('JoinDate field:', member.joinDate, typeof member.joinDate);
       console.log('ExpiryDate field:', member.expiryDate, typeof member.expiryDate);
-      console.log('Department field:', member.department);
-      console.log('DepartmentId field:', member.departmentId);
-      console.log('Minor field:', member.minor);
-      console.log('MinorId field:', member.minorId);
+      console.log('Department field:', member.department, 'type:', typeof member.department);
+      console.log('DepartmentId field:', member.departmentId, 'type:', typeof member.departmentId);
+      console.log('Minor field:', member.minor, 'type:', typeof member.minor);
+      console.log('MinorId field:', member.minorId, 'type:', typeof member.minorId);
+      console.log('Branch field:', member.branch, 'type:', typeof member.branch);
+      console.log('BranchName field:', member.branchName, 'type:', typeof member.branchName);
     }
     // 如果是新增模式且沒有傳入 member，創建一個空的 member 物件
     if (isCreateMode && !member) {
@@ -57,7 +61,7 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
     setSubmitMessage(null);
   }, [member, isCreateMode]);
 
-  // 載入部門資料
+  // 載入部門和分會資料
   useEffect(() => {
     const loadDepartments = async () => {
       try {
@@ -69,10 +73,105 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
       }
     };
 
+    const loadBranches = async () => {
+      try {
+        const branchItems = await queryBranches();
+        console.log('Loaded branches:', branchItems);
+        setBranches(branchItems);
+      } catch (error) {
+        console.error('Failed to load branches:', error);
+      }
+    };
+
     if (isOpen) {
       loadDepartments();
+      loadBranches();
     }
   }, [isOpen]);
+
+  // 當部門和分會資料載入完成且有 formData 時，檢查並修正相關欄位
+  useEffect(() => {
+    if (!formData) return;
+
+    let needsUpdate = false;
+    const updates: Partial<typeof formData> = {};
+
+    // 處理 department 欄位
+    if (departments.length > 0 && formData.department) {
+      const deptExists = departments.find(dept => dept.departmentId === formData.department);
+      
+      if (!deptExists) {
+        // 如果不是有效的 departmentId，嘗試用 departmentName 查找
+        const deptByName = departments.find(dept => dept.departmentName === formData.department);
+        if (deptByName) {
+          console.log('Converting department name to departmentId:', formData.department, '->', deptByName.departmentId);
+          updates.department = deptByName.departmentName;
+          updates.departmentId = deptByName.departmentId;
+          needsUpdate = true;
+        }
+      } else {
+        // 如果是有效的 departmentId，確保 department 也正確
+        if (!formData.departmentId || formData.departmentId !== formData.department) {
+          console.log('Updating departmentId for department:', formData.department);
+          updates.departmentId = formData.department;
+          updates.department = deptExists.departmentName;
+          needsUpdate = true;
+        }
+      }
+    }
+
+    // 處理 minor 欄位
+    if (departments.length > 0 && formData.minor) {
+      const minorExists = departments.find(dept => dept.departmentId === formData.minor);
+      
+      if (!minorExists) {
+        // 如果不是有效的 departmentId，嘗試用 departmentName 查找
+        const minorByName = departments.find(dept => dept.departmentName === formData.minor);
+        if (minorByName) {
+          console.log('Converting minor name to minorId:', formData.minor, '->', minorByName.departmentId);
+          updates.minor = minorByName.departmentName;
+          updates.minorId = minorByName.departmentId;
+          needsUpdate = true;
+        }
+      } else {
+        // 如果是有效的 departmentId，確保 minor 也正確
+        if (!formData.minorId || formData.minorId !== formData.minor) {
+          console.log('Updating minorId for minor:', formData.minor);
+          updates.minorId = formData.minor;
+          updates.minor = minorExists.departmentName;
+          needsUpdate = true;
+        }
+      }
+    }
+
+    // 處理 branch 欄位
+    if (branches.length > 0 && formData.branch) {
+      const branchExists = branches.find(branch => branch.branchId === formData.branch);
+      
+      if (!branchExists) {
+        // 如果不是有效的 branchId，嘗試用 branchName 查找
+        const branchByName = branches.find(branch => branch.branchName === formData.branch);
+        if (branchByName) {
+          console.log('Converting branch name to branchId:', formData.branch, '->', branchByName.branchId);
+          updates.branch = branchByName.branchId;
+          updates.branchName = branchByName.branchName;
+          needsUpdate = true;
+        }
+      } else {
+        // 如果是有效的 branchId，確保 branchName 也正確
+        if (!formData.branchName || formData.branchName !== branchExists.branchName) {
+          console.log('Updating branchName for branchId:', formData.branch, '->', branchExists.branchName);
+          updates.branchName = branchExists.branchName;
+          needsUpdate = true;
+        }
+      }
+    }
+
+    // 如果需要更新，一次性更新所有欄位
+    if (needsUpdate) {
+      setFormData(prev => prev ? { ...prev, ...updates } : null);
+    }
+  }, [departments, branches, formData?.department, formData?.minor, formData?.branch]);
 
   if (!isOpen || !formData) return null;
 
@@ -108,6 +207,15 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
         minorId: value
       } : null);
       console.log('Updated minor:', selectedMinor?.departmentName, 'minorId:', value);
+    } else if (name === 'branch') {
+      // 當選擇分會時，需要同時更新 branch 和 branchName
+      const selectedBranch = branches.find(branch => branch.branchId === value);
+      setFormData(prev => prev ? {
+        ...prev,
+        branch: value,
+        branchName: selectedBranch?.branchName || ''
+      } : null);
+      console.log('Updated branch:', selectedBranch?.branchName, 'branchId:', value);
     } else {
       setFormData(prev => prev ? { ...prev, [name]: value } : null);
     }
@@ -184,15 +292,9 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
 
   // Helper to render department select field
   const renderDepartmentSelect = () => {
-    // 找到當前系所對應的 departmentId
-    const currentDepartment = departments.find(dept =>
-      dept.departmentName === formData.department || dept.departmentId === formData.departmentId
-    );
-
     console.log('Current formData.department:', formData.department);
     console.log('Current formData.departmentId:', formData.departmentId);
     console.log('Available departments:', departments);
-    console.log('Found current department:', currentDepartment);
 
     return (
       <div>
@@ -203,7 +305,7 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
         <select
           id="department"
           name="department"
-          value={currentDepartment?.departmentId || formData.departmentId || ''}
+          value={formData.departmentId || ''}
           onChange={handleSelectChange}
           required
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -221,10 +323,8 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
 
   // Helper to render minor select field
   const renderMinorSelect = () => {
-    // 找到當前輔系對應的 departmentId
-    const currentMinor = departments.find(dept =>
-      dept.departmentName === formData.minor || dept.departmentId === formData.minorId
-    );
+    console.log('Current formData.minor:', formData.minor);
+    console.log('Current formData.minorId:', formData.minorId);
 
     return (
       <div>
@@ -235,7 +335,7 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
         <select
           id="minor"
           name="minor"
-          value={currentMinor?.departmentId || formData.minorId || ''}
+          value={formData.minorId || ''}
           onChange={handleSelectChange}
           required
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -244,6 +344,49 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
           {departments.map((dept) => (
             <option key={dept.departmentId} value={dept.departmentId}>
               {dept.departmentName}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  };
+
+  // Helper to render branch select field
+  const renderBranchSelect = () => {
+    // 找到當前分會對應的 branchId
+    // 優先使用 formData.branch (branchId)，如果沒有則嘗試用 branchName 查找
+    let currentBranch = null;
+    if (formData.branch) {
+      // 如果有 branchId，直接用 branchId 查找
+      currentBranch = branches.find(branch => branch.branchId === formData.branch);
+    } else if (formData.branchName) {
+      // 如果沒有 branchId 但有 branchName，用 branchName 查找
+      currentBranch = branches.find(branch => branch.branchName === formData.branchName);
+    }
+
+    console.log('Current formData.branch:', formData.branch);
+    console.log('Current formData.branchName:', formData.branchName);
+    console.log('Available branches:', branches);
+    console.log('Found current branch:', currentBranch);
+
+    return (
+      <div>
+        <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
+          分會
+          <span className="text-red-500 ml-1">*</span>
+        </label>
+        <select
+          id="branch"
+          name="branch"
+          value={formData.branch || ''}
+          onChange={handleSelectChange}
+          required
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        >
+          <option value="">請選擇分會</option>
+          {branches.map((branch) => (
+            <option key={branch.branchId} value={branch.branchId}>
+              {branch.branchName}
             </option>
           ))}
         </select>
@@ -327,7 +470,7 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {renderInputField('會員類型', 'memberType')}
                 {renderInputField('會員狀況', 'conditionStatus')}
-                {renderInputField('分會', 'branch', 'text', true)}
+                {renderBranchSelect()}
                 {renderInputField('角色', 'role')}
                 {renderInputField('屆別', 'termNumber')}
                 {renderInputField('附屬單位', 'affiliatedUnit')}
