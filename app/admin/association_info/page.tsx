@@ -33,12 +33,12 @@ const aboutMenuItems = [
   //   href: '/about/clubs',
   //   description: '各社團與系友會資訊'
   // },
-  {
-    id: 'voice',
-    title: '交大友聲',
-    href: '/about/voice',
-    description: '校友會刊物與訊息'
-  }
+  // {
+  //   id: 'voice',
+  //   title: '交大友聲',
+  //   href: '/about/voice',
+  //   description: '校友會刊物與訊息'
+  // }
 ];
 
 const AssociationInfoPage = () => {
