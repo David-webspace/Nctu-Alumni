@@ -112,7 +112,7 @@ const Header = () => {
                   <Link href="/about/clubs" className="block px-4 py-3 hover:bg-blue-100 font-bold text-black">社團介紹/系友會介紹</Link>
                 </li>
                 <li>
-                  <Link href="/about/voice" className="block px-4 py-3 hover:bg-blue-100 font-bold text-black">交大友聲</Link>
+                  <Link href="https://nctu-alumni-voice.sec.nycu.edu.tw/" target='_blank' className="block px-4 py-3 hover:bg-blue-100 font-bold text-black">交大友聲</Link>
                 </li>
 
               </ul>

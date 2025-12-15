@@ -15,14 +15,11 @@ const LatestNews = () => {
       setLoading(true);
       try {
         const requestBody = {
-          mwHeader: { requestId: `req-${Date.now()}` },
-          tranRq: {
-            items: {},
-            pageItem: { pageNumber: 1, pageSize: 6 },
-          },
+          items: [],
+          pageItem: { pageNumber: 1, pageSize: 6, totalCount: 0 },
         };
         const res = await queryNews(requestBody);
-        const items = (res?.tranRs?.items || []) as NewsItem[];
+        const items = (res?.items || []) as NewsItem[];
         setNewsList(items);
       } catch (error) {
         console.error('queryNews error:', error);
