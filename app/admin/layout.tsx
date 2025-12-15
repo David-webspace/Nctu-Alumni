@@ -10,10 +10,10 @@ const adminPages = [
   { name: '最新消息', path: '/admin/latest_news' },
   { name: '行事曆', path: '/admin/event_calendar' },
   { name: '會員管理', path: '/admin/membership_management' },
-  { name: '校友會介紹/組織', path: '/admin/association_intro' },
+  // { name: '校友會介紹/組織', path: '/admin/association_intro' },
   { name: '校友會資訊', path: '/admin/association_info' },
   { name: '校友社團資訊', path: '/admin/club_info' },
-  { name: '募款進度', path: '/admin/donation_progress' },
+  // { name: '募款進度', path: '/admin/donation_progress' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -24,7 +24,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     setIsClient(true);
-    
+
     // If not loading and user is not admin, redirect to login
     if (!loading && !user?.isAdmin) {
       const loginUrl = new URL('/login', window.location.origin);
