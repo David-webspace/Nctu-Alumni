@@ -96,7 +96,7 @@ export const updateMember = async (memberData: MemberItem): Promise<StatusRespon
         email: memberData.email || "",
         department: memberData.departmentId || "",
         minor: memberData.minorId || "",
-        branch: memberData.branchId || "",
+        branch: memberData.branch || "",
         role: memberData.roleId || "",
         graduatedYear: memberData.graduatedYear || "",
         startYear: memberData.startYear || "",
@@ -141,6 +141,96 @@ export const updateMember = async (memberData: MemberItem): Promise<StatusRespon
 
     try {
         const res = await axiosInstance.post(`/members/update`, requestBody);
+        return res.data;
+    } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'response' in error && 'config' in error) {
+            const axiosError = error as {
+                message: string;
+                response?: {
+                    status: number;
+                    statusText: string;
+                    data: unknown;
+                };
+                config?: {
+                    url: string;
+                    method: string;
+                    data: unknown;
+                };
+            };
+
+            console.error('API Error Details:', {
+                message: axiosError.message,
+                status: axiosError.response?.status,
+                statusText: axiosError.response?.statusText,
+                data: axiosError.response?.data,
+                config: {
+                    url: axiosError.config?.url,
+                    method: axiosError.config?.method,
+                    data: axiosError.config?.data
+                }
+            });
+        } else {
+            console.error('Unknown error:', error);
+        }
+        throw error;
+    }
+};
+
+export const createMember = async (memberData: MemberItem): Promise<StatusResponse> => {
+    const requestBody = {
+        memberId: memberData.memberId || "",
+        memberName: memberData.memberName || "",
+        personalId: memberData.personalId || "",
+        gender: memberData.gender || "",
+        phone: memberData.phone || "",
+        email: memberData.email || "",
+        department: memberData.departmentId || "",
+        minor: memberData.minorId || "",
+        branch: memberData.branch || "",
+        role: memberData.roleId || "",
+        graduatedYear: memberData.graduatedYear || "",
+        startYear: memberData.startYear || "",
+        title: memberData.title || "",
+        termNumber: memberData.termNumber || "",
+        memberType: memberData.memberType || "",
+        conditionStatus: memberData.conditionStatus || "",
+        spouseName: memberData.spouseName || "",
+        birthday: memberData.birthday ? (typeof memberData.birthday === 'string' ? memberData.birthday : new Date(memberData.birthday).toISOString().split('T')[0]) : "",
+        location: memberData.location || "",
+        nationality: memberData.nationality || "",
+        mobilePhone1: memberData.mobilePhone1 || "",
+        mobilePhone2: memberData.mobilePhone2 || "",
+        zipcode: memberData.zipcode || "",
+        mailingAddress: memberData.mailingAddress || "",
+        residentialAddress: memberData.residentialAddress || "",
+        expertise: memberData.expertise || "",
+        interests: memberData.interests || "",
+        remarks: memberData.remarks || "",
+        alumniRemarks: memberData.alumniRemarks || "",
+        bachelorDegree: memberData.bachelorDegree || "",
+        doctoralDegree: memberData.doctoralDegree || "",
+        companyName: memberData.companyName || "",
+        industryType: memberData.industryType || "",
+        jobTitle: memberData.jobTitle || "",
+        companyPhone: memberData.companyPhone || "",
+        companyFax: memberData.companyFax || "",
+        companyZipcode: memberData.companyZipcode || "",
+        companyAddress: memberData.companyAddress || "",
+        companyEmail: memberData.companyEmail || "",
+        affiliatedUnit: memberData.affiliatedUnit || "",
+        alumniCardNumber: memberData.alumniCardNumber || "",
+        joinDate: memberData.joinDate ? (typeof memberData.joinDate === 'string' ? memberData.joinDate : new Date(memberData.joinDate).toISOString().split('T')[0]) : "",
+        expiryDate: memberData.expiryDate ? (typeof memberData.expiryDate === 'string' ? memberData.expiryDate : new Date(memberData.expiryDate).toISOString().split('T')[0]) : "",
+        newsletterSubscription: memberData.newsletterSubscription || "",
+        paymentRecord: memberData.paymentRecord || "",
+        familyApplication: memberData.familyApplication || "",
+        alumniAssociationEmail: memberData.alumniAssociationEmail || ""
+    };
+
+    console.log('Update request body:', requestBody);
+
+    try {
+        const res = await axiosInstance.post(`/members/create`, requestBody);
         return res.data;
     } catch (error: unknown) {
         if (error && typeof error === 'object' && 'response' in error && 'config' in error) {

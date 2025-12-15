@@ -1,6 +1,6 @@
 "use client";
 
-import { queryMembers, updateMember } from '@/app/api/members';
+import { queryMembers, updateMember, createMember } from '@/app/api/members';
 import { queryDepartments } from '@/app/api/departments';
 import Pagination from '@/app/components/Pagination';
 import React, { useState, useEffect } from 'react';
@@ -90,6 +90,7 @@ const MembershipManagementPage = () => {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<MemberItem | null>(null);
+  const [isCreateMode, setIsCreateMode] = useState(false);
 
   // State for search results and loading
   const [members, setMembers] = useState<MemberItem[]>([]);
@@ -258,21 +259,35 @@ const MembershipManagementPage = () => {
 
   const handleEdit = (member: MemberItem) => {
     setEditingMember(member);
+    setIsCreateMode(false);
     setIsEditModalOpen(true);
   };
 
-  const handleSave = async (updatedMember: MemberItem) => {
+  const handleCreate = () => {
+    setEditingMember(null);
+    setIsCreateMode(true);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSave = async (memberData: MemberItem) => {
     try {
-      const response = await updateMember(updatedMember);
+      let response;
+      if (isCreateMode) {
+        response = await createMember(memberData);
+      } else {
+        response = await updateMember(memberData);
+      }
+      
       if (response.status === 'SUCCESS') {
         setIsEditModalOpen(false);
         setEditingMember(null);
+        setIsCreateMode(false);
         fetchMembers(currentPage); // Refresh the list
       } else {
-        throw new Error(`Update failed with status: ${response.status}`);
+        throw new Error(`${isCreateMode ? 'Create' : 'Update'} failed with status: ${response.status}`);
       }
     } catch (error: unknown) {
-      console.error('Failed to update member:', error);
+      console.error(`Failed to ${isCreateMode ? 'create' : 'update'} member:`, error);
       if (error && typeof error === 'object' && 'response' in error) {
         const axiosError = error as { response: { data: unknown; status: number } };
         console.error('Error response data:', axiosError.response.data);
@@ -424,6 +439,17 @@ const MembershipManagementPage = () => {
         </div>
       </form>
 
+      {/* 新增會員按鈕 */}
+      <div className="mb-4 flex justify-end">
+        <button
+          onClick={() => handleCreate()}
+          className="px-4 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors flex items-center gap-2"
+        >
+          <span className="text-lg">+</span>
+          新增會員
+        </button>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white">
           <thead className="bg-gray-50">
@@ -522,9 +548,14 @@ const MembershipManagementPage = () => {
 
       <EditMemberModal
         isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingMember(null);
+          setIsCreateMode(false);
+        }}
         member={editingMember}
         onSave={handleSave}
+        isCreateMode={isCreateMode}
       />
     </div>
   );

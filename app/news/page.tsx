@@ -18,16 +18,29 @@ export default function NewsPage() {
     setLoading(true);
     try {
       const requestBody = {
-        mwHeader: { requestId: `req-${Date.now()}` },
-        tranRq: {
-            items: {},
-            pageItem: { pageNumber: page, pageSize },
-        },
+        items: [],
+        pageItem: { pageNumber: page, pageSize, totalCount: 0 },
       };
       const res = await queryNews(requestBody);
-      const items = (res?.tranRs?.items || []) as NewsItem[];
-      const total = res?.tranRs?.pageItem?.totalCount || 0;
+      console.log('API Response:', res);
+      console.log('Response structure:', {
+        hasItems: !!res?.items,
+        itemsLength: res?.items?.length,
+        itemsType: typeof res?.items,
+        items: res?.items,
+        pageItem: res?.pageItem
+      });
       
+      const items = (res?.items || []) as NewsItem[];
+      const total = res?.pageItem?.totalCount || 0;
+
+      console.log('Processed data:', {
+        items,
+        itemsLength: items.length,
+        total,
+        totalPages: Math.ceil(total / pageSize)
+      });
+
       setNewsList(items);
       setTotalCount(total);
       setTotalPages(Math.ceil(total / pageSize));
@@ -54,10 +67,10 @@ export default function NewsPage() {
   const renderPagination = () => {
     const pages = [];
     const maxVisiblePages = 5;
-    
+
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    
+
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
@@ -108,6 +121,15 @@ export default function NewsPage() {
     return pages;
   };
 
+  console.log('Render state:', {
+    loading,
+    newsListLength: newsList.length,
+    newsList: newsList.slice(0, 2), // 只顯示前2個項目避免過多輸出
+    totalCount,
+    totalPages,
+    currentPage
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -156,7 +178,7 @@ export default function NewsPage() {
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                       />
                     </div>
-                    
+
                     {/* 內容 */}
                     <div className="p-4 flex-1 flex flex-col">
                       <h3 className="font-semibold text-lg text-gray-800 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">

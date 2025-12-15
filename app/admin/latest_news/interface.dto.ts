@@ -23,21 +23,6 @@ export interface NewsByIdRequest {
   };
 }
 
-export interface NewsQueryRequest {
-    items: Partial<NewsItem>;
-    pageItem: {
-      pageNumber: number;
-      pageSize: number;
-    };
-}
-
-export interface NewsCreateRequest {
-  mwHeader: MwHeader;
-  tranRq: {
-    items: Omit<NewsItem, 'newsId' | 'createdAt' | 'updatedAt'>;
-  };
-}
-
 export interface NewsUpdateRequest {
   mwHeader: MwHeader;
   tranRq: {

@@ -9,9 +9,10 @@ interface EditMemberModalProps {
   onClose: () => void;
   member: MemberItem | null;
   onSave: (updatedMember: MemberItem) => Promise<void>;
+  isCreateMode?: boolean;
 }
 
-const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, member, onSave }) => {
+const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, member, onSave, isCreateMode = false }) => {
   const [formData, setFormData] = useState<MemberItem | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -28,10 +29,33 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
       console.log('Minor field:', member.minor);
       console.log('MinorId field:', member.minorId);
     }
-    setFormData(member);
+    // 如果是新增模式且沒有傳入 member，創建一個空的 member 物件
+    if (isCreateMode && !member) {
+      const emptyMember: MemberItem = {
+        memberId: '',
+        memberName: '',
+        personalId: '',
+        gender: '',
+        phone: '',
+        email: '',
+        department: '',
+        departmentId: '',
+        minor: '',
+        minorId: '',
+        branch: '',
+        branchName: '',
+        role: '',
+        roleId: '',
+        graduatedYear: '',
+        startYear: ''
+      };
+      setFormData(emptyMember);
+    } else {
+      setFormData(member);
+    }
     setIsSubmitting(false);
     setSubmitMessage(null);
-  }, [member]);
+  }, [member, isCreateMode]);
 
   // 載入部門資料
   useEffect(() => {
@@ -54,7 +78,13 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => prev ? { ...prev, [name]: value } : null);
+
+    // 如果是 branch 欄位，同時更新 branchName
+    if (name === 'branch') {
+      setFormData(prev => prev ? { ...prev, [name]: value, branchName: value } : null);
+    } else {
+      setFormData(prev => prev ? { ...prev, [name]: value } : null);
+    }
   };
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -90,12 +120,12 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
       setSubmitMessage(null);
       try {
         await onSave(formData);
-        setSubmitMessage({ type: 'success', text: '會員資料更新成功！' });
+        setSubmitMessage({ type: 'success', text: isCreateMode ? '會員新增成功！' : '會員資料更新成功！' });
         setTimeout(() => {
           setSubmitMessage(null);
         }, 2000);
       } catch (error) {
-        setSubmitMessage({ type: 'error', text: '更新失敗，請稍後再試。' });
+        setSubmitMessage({ type: 'error', text: isCreateMode ? '新增失敗，請稍後再試。' : '更新失敗，請稍後再試。' });
         console.error('Update failed:', error);
       } finally {
         setIsSubmitting(false);
@@ -104,7 +134,7 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
   };
 
   // Helper to render input fields
-  const renderInputField = (label: string, name: keyof MemberItem, type: string = 'text') => {
+  const renderInputField = (label: string, name: keyof MemberItem, type: string = 'text', required: boolean = false) => {
     let displayValue = formData[name] || '';
 
     // 處理日期欄位的格式
@@ -135,13 +165,17 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
 
     return (
       <div>
-        <label htmlFor={name} className="block text-sm font-medium text-gray-700">{label}</label>
+        <label htmlFor={name} className="block text-sm font-medium text-gray-700">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
         <input
           type={type}
           id={name}
           name={name}
           value={String(displayValue)}
           onChange={handleChange}
+          required={required}
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         />
       </div>
@@ -162,12 +196,16 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
 
     return (
       <div>
-        <label htmlFor="department" className="block text-sm font-medium text-gray-700">系所</label>
+        <label htmlFor="department" className="block text-sm font-medium text-gray-700">
+          系所
+          <span className="text-red-500 ml-1">*</span>
+        </label>
         <select
           id="department"
           name="department"
           value={currentDepartment?.departmentId || formData.departmentId || ''}
           onChange={handleSelectChange}
+          required
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         >
           <option value="">請選擇系所</option>
@@ -190,12 +228,16 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
 
     return (
       <div>
-        <label htmlFor="minor" className="block text-sm font-medium text-gray-700">輔系</label>
+        <label htmlFor="minor" className="block text-sm font-medium text-gray-700">
+          輔系
+          <span className="text-red-500 ml-1">*</span>
+        </label>
         <select
           id="minor"
           name="minor"
           value={currentMinor?.departmentId || formData.minorId || ''}
           onChange={handleSelectChange}
+          required
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         >
           <option value="">請選擇輔系</option>
@@ -212,15 +254,20 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
       <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">編輯會員資料</h2>
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">{isCreateMode ? '新增會員' : '編輯會員資料'}</h2>
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+          <p className="text-sm text-blue-800">
+            <span className="text-red-500">*</span> 標記為必填欄位
+          </p>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-8 text-gray-800">
             {/* 基本資料 */}
             <div>
               <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">基本資料</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {renderInputField('姓名', 'memberName')}
-                {renderInputField('學號', 'memberId')}
+                {renderInputField('姓名', 'memberName', 'text', true)}
+                {renderInputField('學號', 'memberId', 'text', true)}
                 {renderInputField('身分證號', 'personalId')}
                 {renderInputField('性別', 'gender')}
                 {renderInputField('生日', 'birthday', 'date')}
@@ -280,7 +327,7 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {renderInputField('會員類型', 'memberType')}
                 {renderInputField('會員狀況', 'conditionStatus')}
-                {renderInputField('分會', 'branchName')}
+                {renderInputField('分會', 'branch', 'text', true)}
                 {renderInputField('角色', 'role')}
                 {renderInputField('屆別', 'termNumber')}
                 {renderInputField('附屬單位', 'affiliatedUnit')}
@@ -337,7 +384,7 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
                   <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               )}
-              {isSubmitting ? '儲存中...' : '儲存'}
+              {isSubmitting ? (isCreateMode ? '新增中...' : '儲存中...') : (isCreateMode ? '新增' : '儲存')}
             </button>
           </div>
         </form>

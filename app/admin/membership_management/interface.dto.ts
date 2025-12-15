@@ -9,7 +9,7 @@ export interface MemberItem {
     departmentId: string;
     minor: string;
     minorId: string;
-    branchId: string;
+    branch: string;
     branchName: string;
     roleId: string;
     role: string;

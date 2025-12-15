@@ -19,8 +19,8 @@ const LatestNewsPage = () => {
       await removeNews(requestBody);
       // 重新查詢最新列表
       const queryBody = {
-          items: {},
-          pageItem: { pageNumber: 1, pageSize: 20 },
+          items: [],
+          pageItem: { pageNumber: 1, pageSize: 20, totalCount: 0 },
       };
       const res = await queryNews(queryBody);
       setNewsData(res.items || []);
@@ -31,8 +31,8 @@ const LatestNewsPage = () => {
 
   useEffect(() => {
     const requestBody = {
-        items: {},
-        pageItem: { pageNumber: 1, pageSize: 20 },
+        items: [],
+        pageItem: { pageNumber: 1, pageSize: 20, totalCount: 0 },
     };
     queryNews(requestBody)
       .then(res => {
