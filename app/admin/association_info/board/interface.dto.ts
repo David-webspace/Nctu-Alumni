@@ -18,9 +18,8 @@ export interface Member {
 export interface MemberInfo {
     name: string;
     photo?: string;
-    email?: string;
-    description?: string;
-    phone?: string;
+    companyName?: string;
+    jobTitle?: string;
 }
 
 
@@ -38,6 +37,6 @@ export interface BoardItem {
   role: string;
   branch: string;
   branchName: string;
-  photo?: string;
-  description?: string;
+  companyName?: string;
+  jobTitle?: string;
 }
