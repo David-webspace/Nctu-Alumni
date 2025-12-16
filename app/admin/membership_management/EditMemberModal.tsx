@@ -21,17 +21,17 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
   const [branches, setBranches] = useState<BranchItem[]>([]);
 
   useEffect(() => {
-    console.log('Received member data:', member);
+    // console.log('Received member data:', member);
     if (member) {
-      console.log('Birthday field:', member.birthday, typeof member.birthday);
-      console.log('JoinDate field:', member.joinDate, typeof member.joinDate);
-      console.log('ExpiryDate field:', member.expiryDate, typeof member.expiryDate);
-      console.log('Department field:', member.department, 'type:', typeof member.department);
-      console.log('DepartmentId field:', member.departmentId, 'type:', typeof member.departmentId);
-      console.log('Minor field:', member.minor, 'type:', typeof member.minor);
-      console.log('MinorId field:', member.minorId, 'type:', typeof member.minorId);
-      console.log('Branch field:', member.branch, 'type:', typeof member.branch);
-      console.log('BranchName field:', member.branchName, 'type:', typeof member.branchName);
+      // console.log('Birthday field:', member.birthday, typeof member.birthday);
+      // console.log('JoinDate field:', member.joinDate, typeof member.joinDate);
+      // console.log('ExpiryDate field:', member.expiryDate, typeof member.expiryDate);
+      // console.log('Department field:', member.department, 'type:', typeof member.department);
+      // console.log('DepartmentId field:', member.departmentId, 'type:', typeof member.departmentId);
+      // console.log('Minor field:', member.minor, 'type:', typeof member.minor);
+      // console.log('MinorId field:', member.minorId, 'type:', typeof member.minorId);
+      // console.log('Branch field:', member.branch, 'type:', typeof member.branch);
+      // console.log('BranchName field:', member.branchName, 'type:', typeof member.branchName);
     }
     // 如果是新增模式且沒有傳入 member，創建一個空的 member 物件
     if (isCreateMode && !member) {
@@ -66,7 +66,7 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
     const loadDepartments = async () => {
       try {
         const response = await queryDepartments(''); // 傳入空字串載入所有部門
-        console.log('Loaded departments:', response.items);
+        // console.log('Loaded departments:', response.items);
         setDepartments(response.items);
       } catch (error) {
         console.error('Failed to load departments:', error);
@@ -76,7 +76,7 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
     const loadBranches = async () => {
       try {
         const branchItems = await queryBranches();
-        console.log('Loaded branches:', branchItems);
+        // console.log('Loaded branches:', branchItems);
         setBranches(branchItems);
       } catch (error) {
         console.error('Failed to load branches:', error);
@@ -99,12 +99,12 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
     // 處理 department 欄位
     if (departments.length > 0 && formData.department) {
       const deptExists = departments.find(dept => dept.departmentId === formData.department);
-      
+
       if (!deptExists) {
         // 如果不是有效的 departmentId，嘗試用 departmentName 查找
         const deptByName = departments.find(dept => dept.departmentName === formData.department);
         if (deptByName) {
-          console.log('Converting department name to departmentId:', formData.department, '->', deptByName.departmentId);
+          // console.log('Converting department name to departmentId:', formData.department, '->', deptByName.departmentId);
           updates.department = deptByName.departmentName;
           updates.departmentId = deptByName.departmentId;
           needsUpdate = true;
@@ -123,12 +123,12 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
     // 處理 minor 欄位
     if (departments.length > 0 && formData.minor) {
       const minorExists = departments.find(dept => dept.departmentId === formData.minor);
-      
+
       if (!minorExists) {
         // 如果不是有效的 departmentId，嘗試用 departmentName 查找
         const minorByName = departments.find(dept => dept.departmentName === formData.minor);
         if (minorByName) {
-          console.log('Converting minor name to minorId:', formData.minor, '->', minorByName.departmentId);
+          // console.log('Converting minor name to minorId:', formData.minor, '->', minorByName.departmentId);
           updates.minor = minorByName.departmentName;
           updates.minorId = minorByName.departmentId;
           needsUpdate = true;
@@ -292,9 +292,9 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
 
   // Helper to render department select field
   const renderDepartmentSelect = () => {
-    console.log('Current formData.department:', formData.department);
-    console.log('Current formData.departmentId:', formData.departmentId);
-    console.log('Available departments:', departments);
+    // console.log('Current formData.department:', formData.department);
+    // console.log('Current formData.departmentId:', formData.departmentId);
+    // console.log('Available departments:', departments);
 
     return (
       <div>
@@ -323,8 +323,8 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
 
   // Helper to render minor select field
   const renderMinorSelect = () => {
-    console.log('Current formData.minor:', formData.minor);
-    console.log('Current formData.minorId:', formData.minorId);
+    // console.log('Current formData.minor:', formData.minor);
+    // console.log('Current formData.minorId:', formData.minorId);
 
     return (
       <div>
@@ -364,10 +364,10 @@ const EditMemberModal: React.FC<EditMemberModalProps> = ({ isOpen, onClose, memb
       currentBranch = branches.find(branch => branch.branchName === formData.branchName);
     }
 
-    console.log('Current formData.branch:', formData.branch);
-    console.log('Current formData.branchName:', formData.branchName);
-    console.log('Available branches:', branches);
-    console.log('Found current branch:', currentBranch);
+    // console.log('Current formData.branch:', formData.branch);
+    // console.log('Current formData.branchName:', formData.branchName);
+    // console.log('Available branches:', branches);
+    // console.log('Found current branch:', currentBranch);
 
     return (
       <div>

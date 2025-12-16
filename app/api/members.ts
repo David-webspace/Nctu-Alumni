@@ -265,3 +265,92 @@ export const createMember = async (memberData: MemberItem): Promise<StatusRespon
         throw error;
     }
 };
+
+// 匯入會員資料的回應介面
+export interface ImportMembersResponse {
+    status: string;
+    message: string;
+    successCount: number;
+}
+
+export const importMembers = async (file: File): Promise<ImportMembersResponse> => {
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const res = await axiosInstance.post('/members/import', formData, {
+            headers: {
+                'Content-Type': undefined, // 移除預設的 application/json，讓瀏覽器自動設定 multipart/form-data
+            },
+        });
+
+        return res.data;
+    } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+            const axiosError = error as AxiosError & {
+                response?: {
+                    status: number;
+                    statusText: string;
+                    data: unknown;
+                };
+                config?: {
+                    url: string;
+                    method: string;
+                    data: unknown;
+                };
+            };
+
+            console.error('Import API Error Details:', {
+                message: axiosError.message,
+                status: axiosError.response?.status,
+                statusText: axiosError.response?.statusText,
+                data: axiosError.response?.data,
+                config: {
+                    url: axiosError.config?.url,
+                    method: axiosError.config?.method,
+                }
+            });
+        } else {
+            console.error('Unknown import error:', error);
+        }
+        throw error;
+    }
+};
+
+// 匯出會員資料為 CSV
+export const exportMembers = async (queryResponse: MemberQueryResponse<MemberItem>): Promise<Blob> => {
+    try {
+        const res = await axiosInstance.post('/members/export', queryResponse, {
+            responseType: 'blob', // 重要：設定回應類型為 blob
+        });
+
+        return res.data;
+    } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+            const axiosError = error as AxiosError & {
+                response?: {
+                    status: number;
+                    statusText: string;
+                    data: unknown;
+                };
+                config?: {
+                    url: string;
+                    method: string;
+                };
+            };
+
+            console.error('Export API Error Details:', {
+                message: axiosError.message,
+                status: axiosError.response?.status,
+                statusText: axiosError.response?.statusText,
+                config: {
+                    url: axiosError.config?.url,
+                    method: axiosError.config?.method,
+                }
+            });
+        } else {
+            console.error('Unknown export error:', error);
+        }
+        throw error;
+    }
+};

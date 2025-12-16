@@ -282,13 +282,22 @@ const MembershipManagementPage = () => {
     try {
       setLoading(true);
       const result = await importMembers(file);
-      
+
       alert(`匯入成功！共匯入 ${result.successCount} 筆資料`);
       fetchMembers(1); // 重新載入第一頁資料
       setCurrentPage(1);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Import error:', error);
-      alert('匯入過程中發生錯誤');
+      
+      // 顯示更詳細的錯誤訊息
+      let errorMessage = '匯入過程中發生錯誤';
+      if (error?.response?.data?.message) {
+        errorMessage = `匯入失敗：${error.response.data.message}`;
+      } else if (error?.message) {
+        errorMessage = `匯入失敗：${error.message}`;
+      }
+      
+      alert(errorMessage);
     } finally {
       setLoading(false);
       // 清空 input 值，讓使用者可以重複選擇同一個檔案
@@ -300,8 +309,66 @@ const MembershipManagementPage = () => {
   const handleExportCSV = async () => {
     try {
       setLoading(true);
-      const blob = await exportMembers();
       
+      // 重新執行查詢以獲取完整的回應資料
+      const requestParams = {
+        memberId: studentId,
+        memberName: chineseName,
+        personalId: idNumber,
+        gender: genderInput || (gender === 'unspecified' ? '' : gender),
+        phone: phone,
+        email: email,
+        department: department,
+        minor: minor,
+        branch: branch,
+        graduatedYear: graduationYear,
+        startYear: startYear,
+        title: title,
+        termNumber: termNumber,
+        memberType: memberType,
+        conditionStatus: conditionStatus,
+        spouseName: spouseName,
+        birthday: birthday,
+        location: location,
+        nationality: nationality,
+        mobilePhone1: mobilePhone1,
+        mobilePhone2: mobilePhone2,
+        zipcode: zipcode,
+        mailingAddress: mailingAddress,
+        residentialAddress: residentialAddress,
+        expertise: expertise,
+        interests: interests,
+        remarks: remarks,
+        alumniRemarks: alumniRemarks,
+        bachelorDegree: bachelorDegree,
+        masterDegree: masterDegree,
+        doctoralDegree: doctoralDegree,
+        companyName: companyName,
+        industryType: industryType,
+        jobTitle: jobTitle,
+        companyPhone: companyPhone,
+        companyFax: companyFax,
+        companyZipcode: companyZipcode,
+        companyAddress: companyAddress,
+        companyEmail: companyEmail,
+        affiliatedUnit: affiliatedUnit,
+        alumniCardNumber: alumniCardNumber,
+        joinDate: joinDate,
+        expiryDate: expiryDate,
+        newsletterSubscription: newsletterSubscription,
+        paymentRecord: paymentRecord,
+        familyApplication: familyApplication,
+        alumniAssociationEmail: alumniAssociationEmail,
+        role: role,
+        pageItem: {
+          pageNumber: 1,
+          pageSize: 999999 // 設定很大的數字來匯出所有符合條件的資料
+        }
+      };
+
+      const queryResponse = await queryMembers(requestParams);
+      const blob = await exportMembers(queryResponse);
+
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -318,6 +385,56 @@ const MembershipManagementPage = () => {
     }
   };
 
+  // 下載 CSV 範本
+  const handleDownloadTemplate = () => {
+    // 根據後端實際匯出格式調整欄位順序
+    const csvHeaders = [
+      'memberId', 'memberName', 'personalId', 'gender', 'phone', 'email',
+      'department', 'departmentId', 'minorId', 'minor', 'branchId', 'branchName', 
+      'roleId', 'role', 'graduatedYear', 'startYear', 'title', 'termNumber', 
+      'spouseName', 'birthday', 'location', 'nationality', 'conditionStatus',
+      'mobilePhone1', 'mobilePhone2', 'zipcode', 'mailingAddress', 'residentialAddress',
+      'expertise', 'interests', 'remarks', 'alumniRemarks', 
+      'bachelorDegree', 'masterDegree', 'doctoralDegree',
+      'companyName', 'industryType', 'jobTitle', 'companyPhone', 'companyFax', 
+      'companyZipcode', 'companyAddress', 'companyEmail',
+      'memberType', 'affiliatedUnit', 'alumniCardNumber', 
+      'joinDate', 'expiryDate', 'newsletterSubscription', 'paymentRecord', 
+      'familyApplication', 'alumniAssociationEmail'
+    ];
+
+    // 根據實際匯出格式調整範例資料
+    const sampleData = [
+      'M001', '王小明', 'B987654321', 'M', '0912345678', 'wang@example.com',
+      '電機工程學系', 'EE01', 'CS02', '資訊工程學系', 'T01', '新竹分會',
+      'R01', '會長', '2023', '2019', '教授', '第15屆', 
+      '陳美麗', '1985-03-15', '新竹市', '中華民國', '正常',
+      '0987654321', '0923456789', '30001', '新竹市東區光復路二段101號', '新竹市北區中正路50號',
+      '人工智慧', '攝影', '積極參與', '優秀校友',
+      '電機工程學士', '電機工程碩士', '電機工程博士',
+      '台積電', '半導體', '資深工程師', '03-12345678', '03-12345679',
+      '30078', '新竹科學園區力行路1號', 'wang.work@tsmc.com',
+      '終身會員', '新竹分會', 'NC001',
+      '2019-09-01', '2030-08-31', '是', '已繳費',
+      '是', 'alumni.hsinchu@nctu.edu.tw'
+    ];
+
+    const csvContent = [
+      csvHeaders.join(','),
+      sampleData.join(',')
+    ].join('\n');
+
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'member_template.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
   const handleSave = async (memberData: MemberItem) => {
     try {
       let response;
@@ -326,7 +443,7 @@ const MembershipManagementPage = () => {
       } else {
         response = await updateMember(memberData);
       }
-      
+
       if (response.status === 'SUCCESS') {
         setIsEditModalOpen(false);
         setEditingMember(null);
@@ -508,7 +625,7 @@ const MembershipManagementPage = () => {
               匯入 CSV
             </label>
           </div>
-          
+
           {/* 匯出按鈕 */}
           <button
             onClick={handleExportCSV}
@@ -516,6 +633,15 @@ const MembershipManagementPage = () => {
           >
             <span className="text-lg">↓</span>
             匯出 CSV
+          </button>
+
+          {/* 下載範本按鈕 */}
+          <button
+            onClick={handleDownloadTemplate}
+            className="px-4 py-2 bg-gray-600 text-white font-semibold rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors flex items-center gap-2"
+          >
+            <span className="text-lg">📄</span>
+            下載範本
           </button>
         </div>
 
