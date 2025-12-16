@@ -390,24 +390,24 @@ const MembershipManagementPage = () => {
     // 根據後端實際匯出格式調整欄位順序
     const csvHeaders = [
       'memberId', 'memberName', 'personalId', 'gender', 'phone', 'email',
-      'department', 'departmentId', 'minorId', 'minor', 'branchId', 'branchName', 
-      'roleId', 'role', 'graduatedYear', 'startYear', 'title', 'termNumber', 
+      'department', 'departmentId', 'minorId', 'minor', 'branchId', 'branchName',
+      'roleId', 'role', 'graduatedYear', 'startYear', 'title', 'termNumber',
       'spouseName', 'birthday', 'location', 'nationality', 'conditionStatus',
       'mobilePhone1', 'mobilePhone2', 'zipcode', 'mailingAddress', 'residentialAddress',
-      'expertise', 'interests', 'remarks', 'alumniRemarks', 
+      'expertise', 'interests', 'remarks', 'alumniRemarks',
       'bachelorDegree', 'masterDegree', 'doctoralDegree',
-      'companyName', 'industryType', 'jobTitle', 'companyPhone', 'companyFax', 
+      'companyName', 'industryType', 'jobTitle', 'companyPhone', 'companyFax',
       'companyZipcode', 'companyAddress', 'companyEmail',
-      'memberType', 'affiliatedUnit', 'alumniCardNumber', 
-      'joinDate', 'expiryDate', 'newsletterSubscription', 'paymentRecord', 
+      'memberType', 'affiliatedUnit', 'alumniCardNumber',
+      'joinDate', 'expiryDate', 'newsletterSubscription', 'paymentRecord',
       'familyApplication', 'alumniAssociationEmail'
     ];
 
     // 根據實際匯出格式調整範例資料
     const sampleData = [
-      'M001', '王小明', 'B987654321', 'M', '0912345678', 'wang@example.com',
-      '電機工程學系', 'EE01', 'CS02', '資訊工程學系', 'T01', '新竹分會',
-      'R01', '會長', '2023', '2019', '教授', '第15屆', 
+      'X001', '王小明', 'B987654321', 'M', '0912345678', 'wang@example.com',
+      '電機工程學系', 'DP002', 'DP001', '資訊工程學系', 'D02', '新竹分會',
+      'R01', '會長', '2023', '2019', '教授', '第15屆',
       '陳美麗', '1985-03-15', '新竹市', '中華民國', '正常',
       '0987654321', '0923456789', '30001', '新竹市東區光復路二段101號', '新竹市北區中正路50號',
       '人工智慧', '攝影', '積極參與', '優秀校友',
