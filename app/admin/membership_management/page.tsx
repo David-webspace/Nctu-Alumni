@@ -1,6 +1,6 @@
 "use client";
 
-import { queryMembers, updateMember, createMember } from '@/app/api/members';
+import { queryMembers, updateMember, createMember, importMembers, exportMembers } from '@/app/api/members';
 import { queryDepartments } from '@/app/api/departments';
 import Pagination from '@/app/components/Pagination';
 import React, { useState, useEffect } from 'react';
@@ -269,6 +269,55 @@ const MembershipManagementPage = () => {
     setIsEditModalOpen(true);
   };
 
+  // CSV 匯入功能
+  const handleImportCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.csv')) {
+      alert('請選擇 CSV 檔案');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const result = await importMembers(file);
+      
+      alert(`匯入成功！共匯入 ${result.successCount} 筆資料`);
+      fetchMembers(1); // 重新載入第一頁資料
+      setCurrentPage(1);
+    } catch (error) {
+      console.error('Import error:', error);
+      alert('匯入過程中發生錯誤');
+    } finally {
+      setLoading(false);
+      // 清空 input 值，讓使用者可以重複選擇同一個檔案
+      event.target.value = '';
+    }
+  };
+
+  // CSV 匯出功能
+  const handleExportCSV = async () => {
+    try {
+      setLoading(true);
+      const blob = await exportMembers();
+      
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `members_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('匯出過程中發生錯誤');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSave = async (memberData: MemberItem) => {
     try {
       let response;
@@ -439,8 +488,38 @@ const MembershipManagementPage = () => {
         </div>
       </form>
 
-      {/* 新增會員按鈕 */}
-      <div className="mb-4 flex justify-end">
+      {/* 操作按鈕 */}
+      <div className="mb-4 flex justify-between items-center">
+        <div className="flex gap-3">
+          {/* 匯入按鈕 */}
+          <div className="relative">
+            <input
+              type="file"
+              id="csv-import"
+              accept=".csv"
+              onChange={handleImportCSV}
+              className="hidden"
+            />
+            <label
+              htmlFor="csv-import"
+              className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors flex items-center gap-2 cursor-pointer"
+            >
+              <span className="text-lg">↑</span>
+              匯入 CSV
+            </label>
+          </div>
+          
+          {/* 匯出按鈕 */}
+          <button
+            onClick={handleExportCSV}
+            className="px-4 py-2 bg-orange-600 text-white font-semibold rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors flex items-center gap-2"
+          >
+            <span className="text-lg">↓</span>
+            匯出 CSV
+          </button>
+        </div>
+
+        {/* 新增會員按鈕 */}
         <button
           onClick={() => handleCreate()}
           className="px-4 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors flex items-center gap-2"

@@ -1,64 +1,48 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { getNewsById } from "../../api/news";
 import { NewsItem } from "../../admin/latest_news/interface.dto";
+import BackButton from "./BackButton";
 
-export default function NewsDetailPage() {
-  const { id } = useParams<{ id: string }>();
-  const router = useRouter();
-  const [data, setData] = useState<NewsItem | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
 
-  useEffect(() => {
-    const fetchDetail = async () => {
-      if (!id) return;
-      setLoading(true);
-      setError(null);
-      try {
-        const requestBody = {
-          mwHeader: { requestId: `req-${Date.now()}` },
-          tranRq: { items: { newsId: id } },
-        };
-        const res = await getNewsById(requestBody as { mwHeader: { requestId: string }; tranRq: { items: { newsId: string } } });
-        // 假設回應為 { tranRs: { item: {...} } } 或 { tranRs: { items: {...} } }
-        const detail: NewsItem = res?.tranRs?.item || res?.tranRs?.items || res?.item || res;
-        setData(detail || null);
-      } catch (e: unknown) {
-        console.error("getNewsById error", e);
-        setError("讀取消息內容失敗");
-      } finally {
-        setLoading(false);
-      }
+async function fetchNewsDetail(id: string): Promise<NewsItem | null> {
+  try {
+    const requestBody = {
+      mwHeader: { requestId: `req-${Date.now()}` },
+      tranRq: { items: { newsId: id } },
     };
-    fetchDetail();
-  }, [id]);
+    
+    const res = await getNewsById(requestBody);
+    // 假設回應為 { tranRs: { item: {...} } } 或 { tranRs: { items: {...} } }
+    const detail: NewsItem = res?.tranRs?.item || res?.tranRs?.items || res?.item || res;
+    
+    return detail || null;
+  } catch (error) {
+    console.error("getNewsById error", error);
+    return null;
+  }
+}
 
-  if (loading) {
-    return <div className="max-w-4xl mx-auto px-4 py-12 text-center text-gray-600">載入中...</div>;
+export default async function NewsDetailPage({ params }: PageProps) {
+  const { id } = await params;
+  
+  if (!id) {
+    notFound();
   }
 
-  if (error || !data) {
-    return (
-      <div className="max-w-3xl mx-auto px-4 py-12 text-center">
-        <p className="text-gray-600 mb-6">{error || "找不到此則消息"}</p>
-        <Link href="/news" className="text-blue-600 hover:underline">返回列表</Link>
-      </div>
-    );
+  const data = await fetchNewsDetail(id);
+
+  if (!data) {
+    notFound();
   }
 
   return (
     <article className="max-w-3xl mx-auto px-4 py-8">
-      <button
-        onClick={() => router.back()}
-        className="text-sm text-gray-500 hover:text-gray-700 mb-4"
-      >
-        ← 返回
-      </button>
+      <BackButton />
 
       <h1 className="text-3xl font-bold text-gray-900 mb-4">{data.title}</h1>
       <div className="text-sm text-gray-500 mb-6">
