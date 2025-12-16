@@ -76,9 +76,9 @@ const Header = () => {
                     <li>
                       <Link href="/about/board" className="block px-4 py-3 hover:bg-blue-100 font-bold text-black">理監事名單</Link>
                     </li>
-                    <li>
+                    {/* <li>
                       <Link href="/about/clubs" className="block px-4 py-3 hover:bg-blue-100 font-bold text-black">社團介紹/系友會介紹</Link>
-                    </li>
+                    </li> */}
                     <li>
                       <Link href="https://nctu-alumni-voice.sec.nycu.edu.tw/" target='_blank' className="block px-4 py-3 hover:bg-blue-100 font-bold text-black">交大友聲</Link>
                     </li>
@@ -104,7 +104,7 @@ const Header = () => {
                 <li><Link href="https://forms.gle/8QC2cLV2KFFDcgUb8" className="block py-2 font-bold text-black hover:bg-blue-100">加入校友會</Link></li>
                 <li><Link href="/about/contact" className="block py-2 font-bold text-black hover:bg-blue-100">相關聯絡訊息</Link></li>
                 <li><Link href="/about/board" className="block py-2 font-bold text-black hover:bg-blue-100">理監事名單</Link></li>
-                <li><Link href="/about/clubs" className="block py-2 font-bold text-black hover:bg-blue-100">社團介紹/系友會介紹</Link></li>
+                {/* <li><Link href="/about/clubs" className="block py-2 font-bold text-black hover:bg-blue-100">社團介紹/系友會介紹</Link></li> */}
                 <li><Link href="https://nctu-alumni-voice.sec.nycu.edu.tw/" target='_blank' className="block py-2 font-bold text-black hover:bg-blue-100">交大友聲</Link></li>
               </ul>
             </details>
