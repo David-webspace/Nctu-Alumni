@@ -9,12 +9,12 @@ const aboutMenuItems = [
     href: '/about/constitution',
     description: '校友會組織章程、架構及相關規定'
   },
-  {
-    id: 'ceo',
-    title: '理事長的話',
-    href: '/about/ceo',
-    description: '理事長致詞與願景'
-  },
+  // {
+  //   id: 'ceo',
+  //   title: '理事長的話',
+  //   href: '/about/ceo',
+  //   description: '理事長致詞與願景'
+  // },
   {
     id: 'contact',
     title: '相關聯絡訊息',
