@@ -3,20 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
+import { AuthProvider, useAuth } from '@/context/AuthContext';
 
-const adminPages = [
-  { name: '管理主頁', path: '/admin' },
-  { name: '最新消息', path: '/admin/latest_news' },
-  { name: '行事曆', path: '/admin/event_calendar' },
-  { name: '會員管理', path: '/admin/membership_management' },
-  // { name: '校友會介紹/組織', path: '/admin/association_intro' },
-  { name: '校友會資訊', path: '/admin/association_info' },
-  // { name: '校友社團資訊', path: '/admin/club_info' },
-  // { name: '募款進度', path: '/admin/donation_progress' },
-];
-
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+function AdminContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading } = useAuth();
@@ -78,5 +67,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </main>
     </div>
+  );
+}
+
+const adminPages = [
+  { name: '管理主頁', path: '/admin' },
+  { name: '最新消息', path: '/admin/latest_news' },
+  { name: '行事曆', path: '/admin/event_calendar' },
+  { name: '會員管理', path: '/admin/membership_management' },
+  // { name: '校友會介紹/組織', path: '/admin/association_intro' },
+  { name: '校友會資訊', path: '/admin/association_info' },
+  // { name: '校友社團資訊', path: '/admin/club_info' },
+  // { name: '募款進度', path: '/admin/donation_progress' },
+];
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AuthProvider>
+      <AdminContent>{children}</AdminContent>
+    </AuthProvider>
   );
 }
