@@ -20,11 +20,9 @@ export async function middleware(request: NextRequest) {
     const session = request.cookies.get('admin-session')?.value;
     
     // If no session, redirect to login with the current URL as the 'from' parameter
-    if (!session) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('from', request.nextUrl.pathname);
-      return NextResponse.redirect(loginUrl);
-    }
+    // Temporarily disable admin page by redirecting to homepage
+    const homeUrl = new URL('/', request.url);
+    return NextResponse.redirect(homeUrl);
   }
 
   return NextResponse.next();
